@@ -1,20 +1,36 @@
 import express from "express";
-import { sequelize } from "./sequelize";
-import { Usuario } from "./src/models/usuario..models";
+import bodyParser from "body-parser";
+
+import dotenv from "dotenv";
+import { sequelize } from "./src/config/sequelize";
+import { usuarioRoutes } from "./src/routes/usuario.routes";
+import { autenticacion } from "./src/middlewares/usuario.middleware";
+
+dotenv.config();
 
 const app = express();
 
-app.get("/", async (req, res) => {
-	try {
-		await sequelize.authenticate();
-		const result = await Usuario.findAll();
-		res.json(result);
-	} catch (error) {
-		console.error(error);
-		res.status(500).send("Error retrieving data from database");
-	}
+// Middleware
+app.use(bodyParser.json());
+
+// Routes
+app.use("/usuario", usuarioRoutes);
+
+// Authentication middleware for routes that need authentication
+// app.use("/authenticated", autenticacion);
+
+// Example route that requires authentication
+app.get("/authenticated/example", (req, res) => {
+	return res.json({ message: "Authenticated" });
 });
 
-app.listen(process.env.PORT, () => {
-	console.log(`Server listening on port ${process.env.PORT}`);
-});
+// Start server and connect to database
+const port = process.env.PORT || 3000;
+
+sequelize
+	.sync()
+	.then(() => {
+		console.log("Connected to database");
+		app.listen(port, () => console.log(`Server running on port ${port}`));
+	})
+	.catch((error) => console.log(error));
