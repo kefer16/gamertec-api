@@ -1,7 +1,9 @@
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../config/sequelize";
-
-export class Usuario extends Model {}
+import { sequelize } from "../config/conexion";
+export class Usuario extends Model {
+	usuario!: string | "";
+	contrasenia!: string | "";
+}
 
 Usuario.init(
 	{
@@ -22,9 +24,11 @@ Usuario.init(
 		},
 		usuario: {
 			type: DataTypes.STRING,
+			defaultValue: "",
 		},
 		contrasenia: {
 			type: DataTypes.STRING,
+			defaultValue: "",
 		},
 		dinero: {
 			type: DataTypes.DOUBLE,
@@ -39,10 +43,10 @@ Usuario.init(
 			type: DataTypes.STRING,
 		},
 		fecha_inicial: {
-			type: DataTypes.DATE,
+			type: DataTypes.STRING,
 		},
 		fecha_final: {
-			type: DataTypes.DATE,
+			type: DataTypes.STRING,
 		},
 	},
 	{

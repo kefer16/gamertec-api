@@ -2,9 +2,9 @@ import express from "express";
 import bodyParser from "body-parser";
 
 import dotenv from "dotenv";
-import { sequelize } from "./src/config/sequelize";
+import { sequelize } from "./src/config/conexion";
 import { usuarioRoutes } from "./src/routes/usuario.routes";
-import { autenticacion } from "./src/middlewares/usuario.middleware";
+import { autenticacionRoutes } from "./src/routes/autentication.routes";
 
 dotenv.config();
 
@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/usuario", usuarioRoutes);
+app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
 // app.use("/authenticated", autenticacion);
