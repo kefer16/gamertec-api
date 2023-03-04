@@ -17,7 +17,8 @@
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
 		"mssql": "^9.1.1",
-		"mysql": "^2.18.1"
+		"mysql": "^2.18.1",
+		"sequelize": "^6.29.0"
 	},
 	"devDependencies": {
 		"@types/cors": "^2.8.13",
