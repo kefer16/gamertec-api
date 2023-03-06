@@ -29,7 +29,7 @@ app.get("/authenticated/example", (req, res) => {
 const port = process.env.PORT || 3000;
 
 sequelize
-	.sync()
+	.authenticate()
 	.then(() => {
 		console.log("Connected to database");
 		app.listen(port, () => console.log(`Server running on port ${port}`));

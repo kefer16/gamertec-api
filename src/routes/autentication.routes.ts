@@ -3,6 +3,6 @@ import { AutenticacionControlller } from "../middlewares/autentication.middlewar
 
 const router = Router();
 
-router.get("/generar", AutenticacionControlller.generar_token);
+router.get("/generar", AutenticacionControlller.generarToken);
 
 export { router as autenticacionRoutes };

@@ -1,26 +1,29 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
-import { Usuario } from "../models/usuario.models";
-
-interface Credenciales {
-	usuario?: string;
-	contrasenia?: string;
-}
+import { CredencialesInterface } from "../interface/credenciales.interface";
+import { ErrorController } from "../controllers/error.controlller";
+import { RespuestaTokenEntity } from "../entity/respuestacredenciales.entity";
+import { ApiEnvioController } from "../controllers/apienvio.controller";
+import { v4 as uuidv4 } from "uuid";
+import { tokenInterface } from "../interface/token.interface";
 
 export class AutenticacionControlller {
-	static async generar_token(req: Request, res: Response) {
+	static async generarToken(req: Request, res: Response) {
+		const code_send = uuidv4();
+		let RepuestaJson: RespuestaTokenEntity = new RespuestaTokenEntity();
+		let codigo: number = 200;
 		try {
+			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			const datos: any = req.body;
 
-			const credenciales: Credenciales = {
+			const credenciales: CredencialesInterface = {
 				usuario: datos.usuario ?? "",
 				contrasenia: datos.contrasenia ?? "",
 			};
 
-			console.log(credenciales);
-
-			const [resultado, metadata] = await sequelize.query(
+			let resultado: tokenInterface[];
+			resultado = await sequelize.query(
 				"exec sp_generar_token @usuario= ?, @contrasenia= ?",
 				{
 					replacements: [credenciales.usuario, credenciales.contrasenia],
@@ -28,10 +31,18 @@ export class AutenticacionControlller {
 				}
 			);
 
-			res.status(200).json(resultado);
+			RepuestaJson = {
+				code: resultado[0].codigo,
+				data: resultado[0].token,
+			};
+
+			res.status(resultado[0].codigo).json(RepuestaJson);
 		} catch (error: any) {
-			console.error(error);
-			res.status(500).send("Error retrieving data from database");
+			codigo = 500;
+			ErrorController.grabarErrorToken(codigo, error, res);
+		} finally {
+			await ApiEnvioController.grabarRespuestaAPI(code_send, RepuestaJson, res);
 		}
 	}
+	static async validarToken() {}
 }

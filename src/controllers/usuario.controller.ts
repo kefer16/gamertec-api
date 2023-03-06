@@ -1,15 +1,33 @@
 import { Request, Response } from "express";
 import { Usuario } from "../models/usuario.models";
+import { v4 as uuidv4 } from "uuid";
+import { ErrorController } from "./error.controlller";
+import { ApiEnvioController } from "./apienvio.controller";
+import { RespuestaEntity } from "../entity/respuesta.entity";
 
 export class UsuarioController {
-	static async listar_usuarios(req: Request, res: Response) {
+	static async listar_todos(req: Request, res: Response) {
+		const code_send = uuidv4();
+		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let codigo: number = 200;
 		try {
+			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 			const result = await Usuario.findAll();
-			res.json(result);
+			respuestaJson = {
+				code: codigo,
+				data: [result],
+				error: {
+					code: 0,
+					message: "",
+				},
+			};
+			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
-			console.error(error);
-			res.status(500).send("Error retrieving data from database");
+			codigo = 500;
+			ErrorController.grabarError(codigo, error, res);
+		} finally {
+			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
 	}
 
