@@ -1,0 +1,128 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "API Gamertec",
+		"description": "Esta es una API RESTful de una tienda online orientada a Gamers",
+		"version": "1.0.0"
+	},
+	"servers": [{ "url": "${API_HOST}" }],
+	"basePath": "/",
+	"schemes": ["http", "https"],
+	"paths": {
+		"/usuario/todos": {
+			"get": {
+				"tags": ["Usuarios"],
+				"summary": "Obtener una lista de usuarios",
+				"description": "Devuelve una lista de todos los usuarios",
+				"responses": {
+					"200": {
+						"description": "Operación exitosa",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Respuesta"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Petición inválida"
+					},
+					"401": {
+						"description": "No autorizado"
+					},
+					"500": {
+						"description": "Error interno del servidor"
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Respuesta": {
+				"type": "object",
+				"properties": {
+					"code": {
+						"type": "integer",
+						"example": 200,
+						"description": "Código de respuesta de petición"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/Usuario"
+						},
+						"description": "Se define un modelo de Usuario"
+					},
+					"error": {
+						"$ref": "#/components/schemas/Error"
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"properties": {
+					"code": {
+						"type": "integer",
+						"example": 2627
+					},
+					"message": {
+						"type": "string",
+						"example": "Error en la aplicación o SQL"
+					}
+				}
+			},
+			"Usuario": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"nombre": {
+						"type": "string"
+					},
+					"apellido": {
+						"type": "string"
+					},
+					"correo": {
+						"type": "string"
+					},
+					"usuario": {
+						"type": "string"
+					},
+					"contrasenia": {
+						"type": "string"
+					},
+					"dinero": {
+						"type": "number"
+					},
+					"foto": {
+						"type": "string"
+					},
+					"fecha_registro": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Fecha de registro (formato - ISO 8601)"
+					},
+					"activo": {
+						"type": "boolean"
+					},
+					"fk_privilegio": {
+						"type": "string"
+					},
+					"fecha_inicial": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Fecha de inicio (formato - ISO 8601)"
+					},
+					"fecha_final": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Fecha final (formato - ISO 8601)"
+					}
+				}
+			}
+		}
+	}
+}
