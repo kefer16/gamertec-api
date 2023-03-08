@@ -3,8 +3,10 @@ import { UsuarioController } from "../controllers/usuario.controller";
 
 const router = Router();
 
-router.get("/all", UsuarioController.listar_todos);
-router.post("/register", UsuarioController.register);
+router.get("/todos", UsuarioController.listarTodos);
+router.get("/uno", UsuarioController.listarUno);
+router.post("/registrar", UsuarioController.registrar);
+router.put("/actualizar", UsuarioController.actualizar);
 router.post("/login", UsuarioController.login);
 
 export { router as usuarioRoutes };

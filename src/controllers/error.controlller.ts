@@ -2,7 +2,10 @@ import { Response } from "express";
 import { RespuestaEntity } from "../entity/respuesta.entity";
 import { RespuestaTokenEntity } from "../entity/respuestacredenciales.entity";
 import { ErrorModel } from "../models/error.models";
-import { convertirFechaLocal } from "../utils/funciones.utils";
+import {
+	obtenerArchivoError,
+	obtenerFechaLocal,
+} from "../utils/funciones.utils";
 
 export class ErrorController {
 	static async grabarError(codigo: number, error: any, res: Response) {
@@ -19,10 +22,10 @@ export class ErrorController {
 			await ErrorModel.create({
 				codigo: error.parent.number,
 				linea: error.parent.lineNumber,
-				objeto: error.parent.procName,
+				objeto: obtenerArchivoError(error),
 				mensaje: error.message,
 				servidor: error.parent.serverName,
-				fecha_registro: convertirFechaLocal(),
+				fecha_registro: obtenerFechaLocal(),
 				fk_usuario: "B966B248-3CA9-48BE-91E3-2FE78027AA68",
 			});
 
@@ -49,7 +52,7 @@ export class ErrorController {
 				objeto: _error.parent.procName,
 				mensaje: _error.message,
 				servidor: _error.parent.serverName,
-				fecha_registro: convertirFechaLocal(),
+				fecha_registro: obtenerFechaLocal(),
 				fk_usuario: "B966B248-3CA9-48BE-91E3-2FE78027AA68",
 			});
 

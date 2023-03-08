@@ -27,20 +27,23 @@ Usuario.init(
 			defaultValue: "",
 		},
 		contrasenia: {
-			type: DataTypes.STRING,
+			type: DataTypes.BLOB,
 			defaultValue: "",
 		},
 		dinero: {
 			type: DataTypes.DOUBLE,
 		},
+		foto: {
+			type: DataTypes.STRING,
+		},
 		fecha_registro: {
-			type: DataTypes.DATE,
+			type: DataTypes.STRING,
 		},
 		activo: {
 			type: DataTypes.BOOLEAN,
 		},
 		fk_privilegio: {
-			type: DataTypes.STRING,
+			type: "UNIQUEIDENTIFIER",
 		},
 		fecha_inicial: {
 			type: DataTypes.STRING,
