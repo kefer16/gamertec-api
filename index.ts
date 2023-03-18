@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import * as fs from "fs";
@@ -21,6 +22,7 @@ swaggerDocument.servers = [{ url: baseUrl }];
 
 // Crear una instancia de express
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
 // Configurar swagger-ui-express con la especificación y la URL base
