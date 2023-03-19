@@ -43,9 +43,8 @@ export class UsuarioController {
 			const idUsuario = req.query.id;
 
 			if (idUsuario === undefined) {
-				codigo = 400;
 				respuestaJson = {
-					code: codigo,
+					code: 404,
 					data: [{}],
 					error: {
 						code: 0,
@@ -203,9 +202,8 @@ export class UsuarioController {
 				},
 			});
 			if (!usuarioLogeado) {
-				codigo = 400;
 				respuestaJson = {
-					code: codigo,
+					code: 404,
 					data: [{}],
 					error: {
 						code: 0,
