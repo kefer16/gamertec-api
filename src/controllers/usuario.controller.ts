@@ -5,7 +5,6 @@ import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entity/respuesta.entity";
 import { obtenerFechaLocal } from "../utils/funciones.utils";
-import { where } from "sequelize";
 
 export class UsuarioController {
 	static async listarTodos(req: Request, res: Response) {
@@ -188,19 +187,48 @@ export class UsuarioController {
 	}
 
 	static async login(req: Request, res: Response) {
-		const { username, password } = req.body;
+		const code_send = uuidv4();
+		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let codigo: number = 200;
+		try {
+			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+			// await sequelize.authenticate();
 
-		const user = await Usuario.findOne({ where: { username, password } });
+			const { usuario, contrasenia } = req.body;
 
-		if (!user) {
-			return res.status(401).json({ message: "Invalid credentials" });
+			const usuarioLogeado: Usuario | null = await Usuario.findOne({
+				where: {
+					usuario: usuario,
+					contrasenia: contrasenia,
+				},
+			});
+			if (!usuarioLogeado) {
+				codigo = 400;
+				respuestaJson = {
+					code: codigo,
+					data: [{}],
+					error: {
+						code: 0,
+						message: "usuario o contrasenia incorrecta",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
+			respuestaJson = {
+				code: codigo,
+				data: [usuarioLogeado ?? {}],
+				error: {
+					code: 0,
+					message: "",
+				},
+			};
+			res.status(codigo).json(respuestaJson);
+		} catch (error: any) {
+			codigo = 500;
+			ErrorController.grabarError(codigo, error, res);
+		} finally {
+			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
-
-		// Generate and save token for user
-		const token = "generated-token";
-		//  user.token = token;
-		//  await user.save();
-
-		return res.json({ token });
 	}
 }
