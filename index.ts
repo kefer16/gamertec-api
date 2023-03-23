@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import { sequelize } from "./src/config/conexion";
 import { usuarioRoutes } from "./src/routes/usuario.routes";
 import { autenticacionRoutes } from "./src/routes/autentication.routes";
+import { privilegioRoutes } from "./src/routes/privilegio.router";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.get(
 // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
+app.use("/privilegio", privilegioRoutes);
 app.use("/usuario", usuarioRoutes);
 app.use("/token", autenticacionRoutes);
 
