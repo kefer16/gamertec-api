@@ -1,5 +1,5 @@
 export interface ErrorInterface {
-	id: string;
+	error_id: string;
 	codigo: string;
 	linea: number;
 	objeto: string;

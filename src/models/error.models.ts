@@ -5,10 +5,10 @@ class Error extends Model {}
 
 Error.init(
 	{
-		id: {
-			type: "UNIQUEIDENTIFIER",
-			defaultValue: DataTypes.UUIDV4,
+		error_id: {
+			type: DataTypes.INTEGER,
 			primaryKey: true,
+			autoIncrement: true,
 			allowNull: false,
 		},
 		codigo: {
@@ -35,7 +35,7 @@ Error.init(
 	},
 	{
 		sequelize,
-		modelName: "Error",
+		modelName: "error",
 		timestamps: false,
 	}
 );

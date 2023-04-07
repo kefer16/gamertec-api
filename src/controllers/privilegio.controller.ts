@@ -6,6 +6,7 @@ import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entity/respuesta.entity";
 import { obtenerFechaLocal } from "../utils/funciones.utils";
 import { Privilegio } from "../models/privilegio.models";
+import { log } from "console";
 
 export class PrivilegioController {
 	static async listarTodos(req: Request, res: Response) {
@@ -41,7 +42,7 @@ export class PrivilegioController {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 
-			const idPrivilegio = req.query.id;
+			const idPrivilegio = req.query.privilegio_id;
 
 			if (idPrivilegio === undefined) {
 				respuestaJson = {
@@ -57,7 +58,7 @@ export class PrivilegioController {
 
 			const result: Privilegio | null = await Privilegio.findOne({
 				where: {
-					id: idPrivilegio,
+					privilegio_id: idPrivilegio,
 				},
 			});
 
@@ -84,9 +85,7 @@ export class PrivilegioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-
 			const { tipo, activo, abreviatura } = req.body;
-
 			const result: Privilegio = await Privilegio.create({
 				tipo,
 				activo,
@@ -117,7 +116,7 @@ export class PrivilegioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const idPrivilegio = req.query.id;
+			const idPrivilegio = req.query.privilegio_id;
 			const { tipo, activo, abreviatura } = req.body;
 
 			await Privilegio.update(
@@ -128,14 +127,14 @@ export class PrivilegioController {
 				},
 				{
 					where: {
-						id: idPrivilegio,
+						privilegio_id: idPrivilegio,
 					},
 				}
 			);
 
 			const filaActaulizada: Privilegio | null = await Privilegio.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { id: idPrivilegio },
+				where: { privilegio_id: idPrivilegio },
 			});
 			respuestaJson = {
 				code: codigo,

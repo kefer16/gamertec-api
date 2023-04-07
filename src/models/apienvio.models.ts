@@ -5,17 +5,17 @@ export class ApiEnvioModel extends Model {}
 
 ApiEnvioModel.init(
 	{
-		id: {
-			type: "UNIQUEIDENTIFIER",
-			defaultValue: DataTypes.UUIDV4,
+		api_envio_id: {
+			type: DataTypes.INTEGER,
 			primaryKey: true,
+			autoIncrement: true,
 			allowNull: false,
 		},
-		send_code: {
+		codigo_envio: {
 			type: "UNIQUEIDENTIFIER",
 			allowNull: false,
 		},
-		request_type: {
+		tipo_peticion: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
@@ -23,44 +23,44 @@ ApiEnvioModel.init(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		params: {
+		parametros: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		key: {
+		llave: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		headers: {
+		cabeceras: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		content_type: {
+		tipo_contenido: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		body: {
+		cuerpo: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		response: {
+		respuesta: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		user_agent: {
+		agente: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		creation_date: {
+		fecha_creacion: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
 		fk_usuario: {
-			type: "UNIQUEIDENTIFIER",
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-		status_code: {
-			type: DataTypes.STRING,
+		estatus: {
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
 	},

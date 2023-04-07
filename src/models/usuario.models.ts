@@ -7,10 +7,10 @@ export class Usuario extends Model {
 
 Usuario.init(
 	{
-		id: {
-			type: "UNIQUEIDENTIFIER",
-			defaultValue: DataTypes.UUIDV4,
+		usuario_id: {
+			type: DataTypes.INTEGER,
 			primaryKey: true,
+			autoIncrement: true,
 			allowNull: false,
 		},
 		nombre: {
@@ -43,7 +43,8 @@ Usuario.init(
 			type: DataTypes.BOOLEAN,
 		},
 		fk_privilegio: {
-			type: "UNIQUEIDENTIFIER",
+			type: DataTypes.INTEGER,
+			allowNull: false,
 		},
 		fecha_inicial: {
 			type: DataTypes.STRING,
@@ -54,7 +55,7 @@ Usuario.init(
 	},
 	{
 		sequelize,
-		modelName: "Usuario",
+		modelName: "usuario",
 		timestamps: false,
 	}
 );

@@ -47,9 +47,9 @@ app.use("/token", autenticacionRoutes);
 // app.use("/authenticated", autenticacion);
 
 // Example route that requires authentication
-app.get("/authenticated/example", (req, res) => {
-	return res.json({ message: "Authenticated" });
-});
+// app.get("/authenticated/example", (req, res) => {
+// 	return res.json({ message: "Authenticated" });
+// });
 
 sequelize
 	.authenticate()

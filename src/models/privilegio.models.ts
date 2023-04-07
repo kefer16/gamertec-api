@@ -1,19 +1,14 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 
-export class Privilegio extends Model {
-	id!: string;
-	tipo!: string;
-	activo!: number;
-	abreviatura!: string;
-}
+export class Privilegio extends Model {}
 
 Privilegio.init(
 	{
-		id: {
-			type: "UNIQUEIDENTIFIER",
-			defaultValue: DataTypes.UUIDV4,
+		privilegio_id: {
+			type: DataTypes.INTEGER,
 			primaryKey: true,
+			autoIncrement: true,
 			allowNull: false,
 		},
 		tipo: {
@@ -28,7 +23,7 @@ Privilegio.init(
 	},
 	{
 		sequelize,
-		modelName: "Privilegio",
+		modelName: "privilegio",
 		timestamps: false,
 	}
 );

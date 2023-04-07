@@ -8,24 +8,24 @@ import { obtenerFechaLocal } from "../utils/funciones.utils";
 export class ApiEnvioController {
 	static async grabarEnvioAPI(code_send: string, req: Request) {
 		await ApiEnvioModel.create({
-			send_code: code_send,
-			request_type: req.method.toString() ?? "",
+			codigo_envio: code_send,
+			tipo_peticion: req.method.toString() ?? "",
 			url:
 				"http://" +
 				req.headers.host?.toString() +
 				"/" +
 				req.hostname.toString() +
 				req.originalUrl.toString(),
-			params: JSON.stringify(req.query) ?? "",
-			key: req.headers.authorization?.toString() ?? "",
-			headers: JSON.stringify(req.headers) ?? "",
-			content_type: req.headers["content-type"]?.toString() ?? "",
-			body: JSON.stringify(req.body) ?? "",
-			response: "",
-			user_agent: req.headers["user-agent"]?.toString() ?? "",
-			creation_date: obtenerFechaLocal(),
-			fk_usuario: "CB6A980F-4ABE-434E-B3B5-98376948E100",
-			status_code: "",
+			parametros: JSON.stringify(req.query) ?? "",
+			llave: req.headers.authorization?.toString() ?? "",
+			cabeceras: JSON.stringify(req.headers) ?? "",
+			tipo_contenido: req.headers["content-type"]?.toString() ?? "",
+			cuerpo: JSON.stringify(req.body) ?? "",
+			respuesta: "",
+			agente: req.headers["user-agent"]?.toString() ?? "",
+			fecha_creacion: obtenerFechaLocal(),
+			fk_usuario: 1,
+			estatus: "",
 		});
 	}
 
@@ -35,19 +35,19 @@ export class ApiEnvioController {
 		res: Response
 	) {
 		await ApiEnvioModel.create({
-			send_code: code_send,
-			request_type: "",
+			codigo_envio: code_send,
+			tipo_peticion: "",
 			url: "",
-			params: "",
-			key: "",
-			headers: "",
-			content_type: "",
-			body: "",
-			response: JSON.stringify(data) ?? "",
-			user_agent: "",
-			creation_date: obtenerFechaLocal(),
-			fk_usuario: "CB6A980F-4ABE-434E-B3B5-98376948E100",
-			status_code: res.statusCode.toString() ?? "",
+			parametros: "",
+			llave: "",
+			cabeceras: "",
+			tipo_contenido: "",
+			cuerpo: "",
+			respuesta: JSON.stringify(data) ?? "",
+			agente: "",
+			fecha_creacion: obtenerFechaLocal(),
+			fk_usuario: 1,
+			estatus: res.statusCode.toString() ?? "",
 		});
 	}
 }
