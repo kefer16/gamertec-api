@@ -10,12 +10,7 @@ export class ApiEnvioController {
 		await ApiEnvioModel.create({
 			codigo_envio: code_send,
 			tipo_peticion: req.method.toString() ?? "",
-			url:
-				"http://" +
-				req.headers.host?.toString() +
-				"/" +
-				req.hostname.toString() +
-				req.originalUrl.toString(),
+			url: "http://" + req.headers.host?.toString() + req.originalUrl.toString(),
 			parametros: JSON.stringify(req.query) ?? "",
 			llave: req.headers.authorization?.toString() ?? "",
 			cabeceras: JSON.stringify(req.headers) ?? "",

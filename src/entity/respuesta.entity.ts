@@ -1,11 +1,11 @@
 export class RespuestaEntity {
 	code: number;
-	data: [object];
+	data: Array<any>;
 	error: ErrorEntity;
 
 	constructor(
 		code: number = 0,
-		data: [object] = [{}],
+		data: Array<any> = [],
 		error: ErrorEntity = new ErrorEntity(0, "")
 	) {
 		this.code = code;

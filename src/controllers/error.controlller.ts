@@ -26,7 +26,7 @@ export class ErrorController {
 				mensaje: error.message,
 				servidor: error.parent.serverName,
 				fecha_registro: obtenerFechaLocal(),
-				fk_usuario: "B966B248-3CA9-48BE-91E3-2FE78027AA68",
+				fk_usuario: 1,
 			});
 
 			res.status(codigo).json(respuestaJson);
@@ -53,7 +53,7 @@ export class ErrorController {
 				mensaje: _error.message,
 				servidor: _error.parent.serverName,
 				fecha_registro: obtenerFechaLocal(),
-				fk_usuario: "B966B248-3CA9-48BE-91E3-2FE78027AA68",
+				fk_usuario: 1,
 			});
 
 			res.status(codigo).json(respuestaJson);

@@ -38,6 +38,7 @@ export class PrivilegioController {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
+
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
@@ -50,7 +51,7 @@ export class PrivilegioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [id] como parametro",
+						message: "no se envió la variable [privilegio_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
@@ -70,6 +71,9 @@ export class PrivilegioController {
 					message: "",
 				},
 			};
+
+			console.log(respuestaJson);
+
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
