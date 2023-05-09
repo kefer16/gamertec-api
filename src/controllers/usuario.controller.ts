@@ -256,6 +256,8 @@ export class UsuarioController {
 				where: {
 					usuario_id: idUsuario,
 				},
+
+				order: [["fecha_final", "DESC"]],
 			});
 
 			respuestaJson = {
