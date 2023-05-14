@@ -8,6 +8,7 @@ import { sequelize } from "./src/config/conexion";
 import { usuarioRoutes } from "./src/routes/usuario.routes";
 import { autenticacionRoutes } from "./src/routes/autentication.routes";
 import { privilegioRoutes } from "./src/routes/privilegio.router";
+import { categoriaRoutes } from "./src/routes/categorias.routers";
 
 dotenv.config();
 
@@ -36,11 +37,12 @@ app.get(
 );
 
 // // Configuración de Swagger
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use("/privilegio", privilegioRoutes);
 app.use("/usuario", usuarioRoutes);
+app.use("/", categoriaRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
