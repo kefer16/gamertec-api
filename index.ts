@@ -42,7 +42,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Routes
 app.use("/privilegio", privilegioRoutes);
 app.use("/usuario", usuarioRoutes);
-app.use("/", categoriaRoutes);
+app.use("/categoria", categoriaRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
