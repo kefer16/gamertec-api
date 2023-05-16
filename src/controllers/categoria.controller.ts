@@ -39,9 +39,9 @@ export class CategoriaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const idPrivilegio = req.query.privilegio_id;
+			const ID = req.query.categoria_id;
 
-			if (idPrivilegio === undefined) {
+			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
 					data: [{}],
@@ -55,7 +55,7 @@ export class CategoriaController {
 
 			const result: Categoria | null = await Categoria.findOne({
 				where: {
-					privilegio_id: idPrivilegio,
+					categoria_id: ID,
 				},
 			});
 
@@ -85,11 +85,10 @@ export class CategoriaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { tipo, activo, abreviatura } = req.body;
+			const { nombre, activo } = req.body;
 			const result: Categoria = await Categoria.create({
-				tipo,
+				nombre,
 				activo,
-				abreviatura,
 			});
 
 			respuestaJson = {
@@ -116,25 +115,24 @@ export class CategoriaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const idPrivilegio = req.query.privilegio_id;
-			const { tipo, activo, abreviatura } = req.body;
+			const ID = req.query.categoria_id;
+			const { nombre, activo } = req.body;
 
 			await Categoria.update(
 				{
-					tipo,
+					nombre,
 					activo,
-					abreviatura,
 				},
 				{
 					where: {
-						privilegio_id: idPrivilegio,
+						categoria_id: ID,
 					},
 				}
 			);
 
 			const filaActaulizada: Categoria | null = await Categoria.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { privilegio_id: idPrivilegio },
+				where: { categoria_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
