@@ -17,6 +17,12 @@ Categoria.init(
 		activo: {
 			type: DataTypes.NUMBER,
 		},
+		fecha_registro: {
+			type: DataTypes.STRING,
+		},
+		fecha_actualizacion: {
+			type: DataTypes.STRING,
+		},
 	},
 	{
 		sequelize,

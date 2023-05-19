@@ -13,7 +13,9 @@ export class CategoriaController {
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result = await Categoria.findAll();
+			const result = await Categoria.findAll({
+				order: [["fecha_registro", "DESC"]],
+			});
 			respuestaJson = {
 				code: codigo,
 				data: result,
@@ -85,10 +87,12 @@ export class CategoriaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { nombre, activo } = req.body;
+			const { nombre, activo, fecha_registro, fecha_actualizacion } = req.body;
 			const result: Categoria = await Categoria.create({
 				nombre,
 				activo,
+				fecha_registro,
+				fecha_actualizacion,
 			});
 
 			respuestaJson = {
@@ -116,12 +120,14 @@ export class CategoriaController {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 			const ID = req.query.categoria_id;
-			const { nombre, activo } = req.body;
+			const { nombre, activo, fecha_registro, fecha_actualizacion } = req.body;
 
 			await Categoria.update(
 				{
 					nombre,
 					activo,
+					fecha_registro,
+					fecha_actualizacion,
 				},
 				{
 					where: {
