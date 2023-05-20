@@ -1,23 +1,23 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 
-export class Privilegio extends Model {}
+export class Marca extends Model {}
 
-Privilegio.init(
+Marca.init(
 	{
-		privilegio_id: {
+		marca_id: {
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
 			allowNull: false,
 		},
-		tipo: {
+		nombre: {
 			type: DataTypes.STRING,
 		},
 		activo: {
 			type: DataTypes.NUMBER,
 		},
-		abreviatura: {
+		fk_categoria: {
 			type: DataTypes.STRING,
 		},
 		fecha_registro: {
@@ -26,7 +26,7 @@ Privilegio.init(
 	},
 	{
 		sequelize,
-		modelName: "privilegio",
+		modelName: "marca",
 		timestamps: false,
 	}
 );

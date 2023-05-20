@@ -9,6 +9,7 @@ import { usuarioRoutes } from "./src/routes/usuario.routes";
 import { autenticacionRoutes } from "./src/routes/autentication.routes";
 import { privilegioRoutes } from "./src/routes/privilegio.router";
 import { categoriaRoutes } from "./src/routes/categorias.routers";
+import { MarcaRoutes } from "./src/routes/marca.routes";
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/privilegio", privilegioRoutes);
 app.use("/usuario", usuarioRoutes);
 app.use("/categoria", categoriaRoutes);
+app.use("/marca", MarcaRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication

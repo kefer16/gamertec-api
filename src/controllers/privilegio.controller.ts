@@ -16,10 +16,12 @@ export class PrivilegioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await Privilegio.findAll();
+			const result = await Privilegio.findAll({
+				order: [["fecha_registro", "DESC"]],
+			});
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -89,11 +91,12 @@ export class PrivilegioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { tipo, activo, abreviatura } = req.body;
+			const { tipo, activo, abreviatura, fecha_registro } = req.body;
 			const result: Privilegio = await Privilegio.create({
 				tipo,
 				activo,
 				abreviatura,
+				fecha_registro,
 			});
 
 			respuestaJson = {
@@ -121,13 +124,14 @@ export class PrivilegioController {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 			const idPrivilegio = req.query.privilegio_id;
-			const { tipo, activo, abreviatura } = req.body;
+			const { tipo, activo, abreviatura, fecha_registro } = req.body;
 
 			await Privilegio.update(
 				{
 					tipo,
 					activo,
 					abreviatura,
+					fecha_registro,
 				},
 				{
 					where: {
