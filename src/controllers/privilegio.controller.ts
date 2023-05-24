@@ -160,4 +160,49 @@ export class PrivilegioController {
 			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
 	}
+	static async eliminarUno(req: Request, res: Response) {
+		const code_send = uuidv4();
+		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let codigo: number = 200;
+
+		try {
+			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+
+			const ID = req.query.privilegio_id;
+
+			if (ID === undefined) {
+				respuestaJson = {
+					code: 404,
+					data: [{}],
+					error: {
+						code: 0,
+						message: "no se envió la variable [privilegio_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
+			await Privilegio.destroy({
+				where: {
+					privilegio_id: ID,
+				},
+			});
+
+			respuestaJson = {
+				code: codigo,
+				data: [],
+				error: {
+					code: 0,
+					message: "",
+				},
+			};
+
+			res.status(codigo).json(respuestaJson);
+		} catch (error: any) {
+			codigo = 500;
+			ErrorController.grabarError(codigo, error, res);
+		} finally {
+			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
+		}
+	}
 }

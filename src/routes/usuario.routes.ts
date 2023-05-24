@@ -9,5 +9,6 @@ router.post("/registrar", UsuarioController.registrar);
 router.put("/actualizar", UsuarioController.actualizar);
 router.post("/login", UsuarioController.login);
 router.get("/historial", UsuarioController.historial);
+router.delete("/eliminar", UsuarioController.eliminarUno);
 
 export { router as usuarioRoutes };

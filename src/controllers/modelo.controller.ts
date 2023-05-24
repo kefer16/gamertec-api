@@ -50,7 +50,7 @@ export class ModeloController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [privilegio_id] como parametro",
+						message: "no se envió la variable [modelo_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
@@ -216,7 +216,7 @@ export class ModeloController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [marca_id] como parametro",
+						message: "no se envió la variable [modelo_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
@@ -224,7 +224,7 @@ export class ModeloController {
 
 			await Modelo.destroy({
 				where: {
-					marca_id: ID,
+					modelo_id: ID,
 				},
 			});
 

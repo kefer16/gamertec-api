@@ -4,9 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entity/respuesta.entity";
-import { Marca } from "../models/marca.models";
+import { Producto } from "../models/producto.models";
 
-export class MarcaController {
+export class ProductoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
@@ -14,7 +14,7 @@ export class MarcaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await Marca.findAll({
+			const result = await Producto.findAll({
 				order: [["fecha_registro", "DESC"]],
 			});
 			respuestaJson = {
@@ -42,7 +42,7 @@ export class MarcaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.marca_id;
+			const ID = req.query.producto_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -50,13 +50,13 @@ export class MarcaController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [marca_id] como parametro",
+						message: "no se envió la variable [producto_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Marca | null = await Marca.findOne({
+			const result: Producto | null = await Producto.findOne({
 				where: {
 					marca_id: ID,
 				},
@@ -88,12 +88,21 @@ export class MarcaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { nombre, activo, fk_categoria, fecha_registro } = req.body;
-			const result: Marca = await Marca.create({
-				nombre,
-				activo,
+			const {
+				numero_serie,
+				fk_modelo,
+				fk_marca,
 				fk_categoria,
 				fecha_registro,
+				activo,
+			} = req.body;
+			const result: Producto = await Producto.create({
+				numero_serie,
+				fk_modelo,
+				fk_marca,
+				fk_categoria,
+				fecha_registro,
+				activo,
 			});
 
 			respuestaJson = {
@@ -120,26 +129,35 @@ export class MarcaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.marca_id;
-			const { nombre, activo, fk_categoria, fecha_registro } = req.body;
+			const ID = req.query.producto_id;
+			const {
+				numero_serie,
+				fk_modelo,
+				fk_marca,
+				fk_categoria,
+				fecha_registro,
+				activo,
+			} = req.body;
 
-			await Marca.update(
+			await Producto.update(
 				{
-					nombre,
-					activo,
+					numero_serie,
+					fk_modelo,
+					fk_marca,
 					fk_categoria,
 					fecha_registro,
+					activo,
 				},
 				{
 					where: {
-						marca_id: ID,
+						producto_id: ID,
 					},
 				}
 			);
 
-			const filaActualizada: Marca | null = await Marca.findOne({
+			const filaActualizada: Producto | null = await Producto.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { marca_id: ID },
+				where: { producto_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -166,7 +184,7 @@ export class MarcaController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.marca_id;
+			const ID = req.query.producto_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -174,15 +192,15 @@ export class MarcaController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [marca_id] como parametro",
+						message: "no se envió la variable [producto_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Marca.destroy({
+			await Producto.destroy({
 				where: {
-					marca_id: ID,
+					producto_id: ID,
 				},
 			});
 

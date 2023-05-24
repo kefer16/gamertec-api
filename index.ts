@@ -11,6 +11,7 @@ import { privilegioRoutes } from "./src/routes/privilegio.router";
 import { categoriaRoutes } from "./src/routes/categorias.routers";
 import { MarcaRoutes } from "./src/routes/marca.routes";
 import { ModeloRoutes } from "./src/routes/modelo.ruoters";
+import { ProductoRoutes } from "./src/routes/producto.routers";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use("/usuario", usuarioRoutes);
 app.use("/categoria", categoriaRoutes);
 app.use("/marca", MarcaRoutes);
 app.use("/modelo", ModeloRoutes);
+app.use("/producto", ProductoRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
