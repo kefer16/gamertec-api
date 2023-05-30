@@ -3,6 +3,15 @@ import { sequelize } from "../config/conexion";
 
 export class Modelo extends Model {}
 
+export class ModeloModel {
+	constructor(
+		public modelo_id: number = 0,
+		public descripcion: string = "",
+		public precio: number = 0,
+		public foto: string = ""
+	) {}
+}
+
 Modelo.init(
 	{
 		modelo_id: {

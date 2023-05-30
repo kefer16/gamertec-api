@@ -1,4 +1,4 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 import { CredencialesInterface } from "../interface/credenciales.interface";

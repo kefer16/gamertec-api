@@ -4,9 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entity/respuesta.entity";
-import { obtenerFechaLocal } from "../utils/funciones.utils";
 import { Privilegio } from "../models/privilegio.models";
-import { log } from "console";
 
 export class PrivilegioController {
 	static async listarTodos(req: Request, res: Response) {

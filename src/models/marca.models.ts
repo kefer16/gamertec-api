@@ -3,6 +3,10 @@ import { sequelize } from "../config/conexion";
 
 export class Marca extends Model {}
 
+export class MarcaModel {
+	constructor(public marca_id: number = 0, public nombre: string = "") {}
+}
+
 Marca.init(
 	{
 		marca_id: {
