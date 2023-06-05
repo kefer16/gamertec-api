@@ -35,6 +35,22 @@ export class ErrorController {
 		}
 	}
 
+	static async grabarSoloError(error: any) {
+		try {
+			await ErrorModel.create({
+				codigo: error.parent.number,
+				linea: error.parent.lineNumber,
+				objeto: obtenerArchivoError(error),
+				mensaje: error.message,
+				servidor: error.parent.serverName,
+				fecha_registro: obtenerFechaLocal(),
+				fk_usuario: 1,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 	static async grabarErrorToken(codigo: number, _error: any, res: Response) {
 		const respuestaJson: RespuestaTokenEntity = {
 			code: codigo,

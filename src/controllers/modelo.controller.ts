@@ -61,7 +61,7 @@ export class ModeloController {
 
 			const result: Modelo | null = await Modelo.findOne({
 				where: {
-					marca_id: ID,
+					modelo_id: ID,
 				},
 			});
 
