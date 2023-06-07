@@ -12,6 +12,7 @@ import { categoriaRoutes } from "./src/routes/categorias.routers";
 import { MarcaRoutes } from "./src/routes/marca.routes";
 import { ModeloRoutes } from "./src/routes/modelo.ruoters";
 import { ProductoRoutes } from "./src/routes/producto.routers";
+import { comentarioRoutes } from "./src/routes/comentario.routes";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use("/categoria", categoriaRoutes);
 app.use("/marca", MarcaRoutes);
 app.use("/modelo", ModeloRoutes);
 app.use("/producto", ProductoRoutes);
+app.use("/comentario", comentarioRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication

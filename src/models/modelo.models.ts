@@ -6,9 +6,13 @@ export class Modelo extends Model {}
 export class ModeloModel {
 	constructor(
 		public modelo_id: number = 0,
+		public nombre: string = "",
 		public descripcion: string = "",
+		public caracteristicas: string = "",
 		public precio: number = 0,
-		public foto: string = ""
+		public foto: string = "",
+		public color: string = "",
+		public stock: number = 0
 	) {}
 }
 

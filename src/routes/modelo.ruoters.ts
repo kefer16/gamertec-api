@@ -9,5 +9,6 @@ router.post("/registrar", ModeloController.registrar);
 router.put("/actualizar", ModeloController.actualizar);
 router.delete("/eliminar", ModeloController.eliminarUno);
 router.get("/listar_filtro", ModeloController.listarModelosPorFiltro);
+router.get("/descripcion", ModeloController.listaModeloDescripcion);
 
 export { router as ModeloRoutes };

@@ -2,6 +2,9 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 
 export class Categoria extends Model {}
+export class CategoriaModel {
+	constructor(public categoria_id: number = 0, public nombre: string = "") {}
+}
 
 Categoria.init(
 	{
