@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { RespuestaEntity } from "../entity/respuesta.entity";
-import { RespuestaTokenEntity } from "../entity/respuestacredenciales.entity";
+import { RespuestaEntity } from "../entities/respuesta.entity";
+import { RespuestaTokenEntity } from "../entities/respuestacredenciales.entity";
 import { ErrorModel } from "../models/error.models";
 import {
 	obtenerArchivoError,

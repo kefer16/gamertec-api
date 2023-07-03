@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { QueryTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
-import { CredencialesInterface } from "../interface/credenciales.interface";
+import { CredencialesInterface } from "../interfaces/credenciales.interface";
 import { ErrorController } from "../controllers/error.controlller";
-import { RespuestaTokenEntity } from "../entity/respuestacredenciales.entity";
+import { RespuestaTokenEntity } from "../entities/respuestacredenciales.entity";
 import { ApiEnvioController } from "../controllers/apienvio.controller";
 import { v4 as uuidv4 } from "uuid";
-import { tokenInterface } from "../interface/token.interface";
+import { tokenInterface } from "../interfaces/token.interface";
 
 export class AutenticacionControlller {
 	static async generarToken(req: Request, res: Response) {

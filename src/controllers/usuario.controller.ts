@@ -3,7 +3,7 @@ import { Usuario } from "../models/usuario.models";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entity/respuesta.entity";
+import { RespuestaEntity } from "../entities/respuesta.entity";
 import { obtenerFechaLocal } from "../utils/funciones.utils";
 import { UsuarioHistorial } from "../models/usuario_historial.models";
 

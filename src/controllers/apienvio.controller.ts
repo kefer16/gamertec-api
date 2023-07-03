@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { RespuestaEntity } from "../entity/respuesta.entity";
-import { RespuestaTokenEntity } from "../entity/respuestacredenciales.entity";
+import { RespuestaEntity } from "../entities/respuesta.entity";
+import { RespuestaTokenEntity } from "../entities/respuestacredenciales.entity";
 
 import { ApiEnvioModel } from "../models/apienvio.models";
 import { obtenerFechaLocal } from "../utils/funciones.utils";

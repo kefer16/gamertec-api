@@ -4,17 +4,19 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Comentario } from "../models/comentario.models";
+import { Op } from "sequelize";
+import { Distrito } from "../models/distrito.models";
 
-export class ComentarioController {
+export class DistritoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result = await Comentario.findAll({
-				order: [["fecha_registro", "DESC"]],
+			// await sequelize.authenticate();
+			const result = await Distrito.findAll({
+				where: { activo: { [Op.eq]: 1 } },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -41,7 +43,7 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = req.query.distrito_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -49,15 +51,15 @@ export class ComentarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [comentario_id] como parametro",
+						message: "no se envió la variable [distrito_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Comentario | null = await Comentario.findOne({
+			const result: Distrito | null = await Distrito.findOne({
 				where: {
-					comentario_id: ID,
+					distrito_id: ID,
 				},
 			});
 
@@ -87,25 +89,12 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const {
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
-				fecha_registro,
+			const { nombre, activo, fk_provincia, fk_departamento } = req.body;
+			const result: Distrito = await Distrito.create({
+				nombre,
 				activo,
-				fk_usuario,
-				fk_modelo,
-			} = req.body;
-			const result: Comentario = await Comentario.create({
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
-				fecha_registro,
-				activo,
-				fk_usuario,
-				fk_modelo,
+				fk_provincia,
+				fk_departamento,
 			});
 
 			respuestaJson = {
@@ -132,39 +121,26 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.comentario_id;
-			const {
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
-				fecha_registro,
-				activo,
-				fk_usuario,
-				fk_modelo,
-			} = req.body;
+			const ID = req.query.distrito_id;
+			const { nombre, activo, fk_provincia, fk_departamento } = req.body;
 
-			await Comentario.update(
+			await Distrito.update(
 				{
-					valoracion,
-					usuario,
-					titulo,
-					mensaje,
-					fecha_registro,
+					nombre,
 					activo,
-					fk_usuario,
-					fk_modelo,
+					fk_provincia,
+					fk_departamento,
 				},
 				{
 					where: {
-						comentario_id: ID,
+						distrito_id: ID,
 					},
 				}
 			);
 
-			const filaActualizada: Comentario | null = await Comentario.findOne({
+			const filaActualizada: Distrito | null = await Distrito.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { comentario_id: ID },
+				where: { distrito_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -182,6 +158,7 @@ export class ComentarioController {
 			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
 	}
+
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
@@ -190,7 +167,7 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = req.query.distrito_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -198,68 +175,21 @@ export class ComentarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [comentario_id] como parametro",
+						message: "no se envió la variable [distrito_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Comentario.destroy({
+			await Distrito.destroy({
 				where: {
-					comentario_id: ID,
+					distrito_id: ID,
 				},
 			});
 
 			respuestaJson = {
 				code: codigo,
 				data: [],
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
-	}
-
-	static async buscarPorModelo(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
-		let codigo: number = 200;
-
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
-			const ID = req.query.modelo_id;
-
-			if (ID === undefined) {
-				respuestaJson = {
-					code: 404,
-					data: [{}],
-					error: {
-						code: 0,
-						message: "no se envió la variable [modelo_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result = await Comentario.findAll({
-				where: {
-					fk_modelo: ID,
-				},
-				order: [["fecha_registro", "DESC"]],
-			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
 				error: {
 					code: 0,
 					message: "",

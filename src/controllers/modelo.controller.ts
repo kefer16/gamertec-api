@@ -3,12 +3,12 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entity/respuesta.entity";
+import { RespuestaEntity } from "../entities/respuesta.entity";
 import { Modelo } from "../models/modelo.models";
 import { sequelize } from "../config/conexion";
-import { modeloFiltroInterface } from "../interface/productos.interface";
+import { modeloFiltroInterface } from "../interfaces/productos.interface";
 import { QueryTypes } from "sequelize";
-import { modeloDescripcionProps } from "../interface/modelo.interface";
+import { modeloDescripcionProps } from "../interfaces/modelo.interface";
 
 export class ModeloController {
 	static async listarTodos(req: Request, res: Response) {

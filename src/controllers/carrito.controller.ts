@@ -4,16 +4,19 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Comentario } from "../models/comentario.models";
+import { Carrito } from "../models/carrito.models";
+import { CarritoInterface } from "../interfaces/carrito.interface";
+import { sequelize } from "../config/conexion";
+import { QueryTypes } from "sequelize";
 
-export class ComentarioController {
+export class CarritoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result = await Comentario.findAll({
+			const result = await Carrito.findAll({
 				order: [["fecha_registro", "DESC"]],
 			});
 			respuestaJson = {
@@ -41,7 +44,7 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = req.query.carrito_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -49,15 +52,15 @@ export class ComentarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [comentario_id] como parametro",
+						message: "no se envió la variable [carrito_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Comentario | null = await Comentario.findOne({
+			const result: Carrito | null = await Carrito.findOne({
 				where: {
-					comentario_id: ID,
+					carrito_id: ID,
 				},
 			});
 
@@ -88,20 +91,20 @@ export class ComentarioController {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 			const {
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
+				cantidad,
+				precio_total,
+				despues,
+				comprado,
 				fecha_registro,
 				activo,
 				fk_usuario,
 				fk_modelo,
 			} = req.body;
-			const result: Comentario = await Comentario.create({
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
+			const result: Carrito = await Carrito.create({
+				cantidad,
+				precio_total,
+				despues,
+				comprado,
 				fecha_registro,
 				activo,
 				fk_usuario,
@@ -132,24 +135,24 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.comentario_id;
+			const ID = req.query.carrito_id;
 			const {
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
+				cantidad,
+				precio_total,
+				despues,
+				comprado,
 				fecha_registro,
 				activo,
 				fk_usuario,
 				fk_modelo,
 			} = req.body;
 
-			await Comentario.update(
+			await Carrito.update(
 				{
-					valoracion,
-					usuario,
-					titulo,
-					mensaje,
+					cantidad,
+					precio_total,
+					despues,
+					comprado,
 					fecha_registro,
 					activo,
 					fk_usuario,
@@ -157,14 +160,14 @@ export class ComentarioController {
 				},
 				{
 					where: {
-						comentario_id: ID,
+						carrito_id: ID,
 					},
 				}
 			);
 
-			const filaActualizada: Comentario | null = await Comentario.findOne({
+			const filaActualizada: Carrito | null = await Carrito.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { comentario_id: ID },
+				where: { carrito_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -190,7 +193,7 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = req.query.carrito_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -198,15 +201,15 @@ export class ComentarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [comentario_id] como parametro",
+						message: "no se envió la variable [carrito_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Comentario.destroy({
+			await Carrito.destroy({
 				where: {
-					comentario_id: ID,
+					carrito_id: ID,
 				},
 			});
 
@@ -228,7 +231,7 @@ export class ComentarioController {
 		}
 	}
 
-	static async buscarPorModelo(req: Request, res: Response) {
+	static async obtenerCarritoPorUsuario(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
@@ -236,7 +239,7 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.modelo_id;
+			const ID = req.query.usuario_id;
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -244,22 +247,51 @@ export class ComentarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [modelo_id] como parametro",
+						message: "no se envió la variable [usuario_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result = await Comentario.findAll({
-				where: {
-					fk_modelo: ID,
-				},
-				order: [["fecha_registro", "DESC"]],
+			let arrayCarrito: CarritoInterface[] = [];
+
+			const resultado = await sequelize.query(
+				"exec obtener_carrito_por_usuario @usuario_id= ?",
+				{
+					replacements: [ID],
+					type: QueryTypes.SELECT,
+				}
+			);
+
+			resultado.forEach((element: any) => {
+				const item: CarritoInterface = {
+					marca: {
+						marca_id: element.marca_id as number,
+						nombre: element.marca_nombre as string,
+					},
+					modelo: {
+						modelo_id: element.modelo_id as number,
+						nombre: element.modelo_nombre as string,
+						descripcion: element.modelo_descripcion as string,
+						caracteristicas: element.modelo_caracteristicas as string,
+						precio: element.modelo_precio as number,
+						foto: element.modelo_foto as string,
+						color: element.modelo_color as string,
+						stock: element.modelo_stock as number,
+					},
+					carrito: {
+						carrito_id: element.carrito_id as number,
+						cantidad: element.carrito_cantidad as number,
+						fecha_registro: element.carrito_fecha_registro as string,
+						activo: element.carrito_activo as boolean,
+					},
+				};
+				arrayCarrito.push(item);
 			});
 
 			respuestaJson = {
 				code: codigo,
-				data: result,
+				data: arrayCarrito,
 				error: {
 					code: 0,
 					message: "",

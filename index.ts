@@ -13,6 +13,10 @@ import { MarcaRoutes } from "./src/routes/marca.routes";
 import { ModeloRoutes } from "./src/routes/modelo.ruoters";
 import { ProductoRoutes } from "./src/routes/producto.routers";
 import { comentarioRoutes } from "./src/routes/comentario.routes";
+import { carritoRoutes } from "./src/routes/carrito.routers";
+import { DepartamentoRoutes } from "./src/routes/departamento.routes";
+import { ProvinciaRoutes } from "./src/routes/provincia.routes";
+import { DistritoRoutes } from "./src/routes/distrito.routes";
 
 dotenv.config();
 
@@ -51,6 +55,10 @@ app.use("/marca", MarcaRoutes);
 app.use("/modelo", ModeloRoutes);
 app.use("/producto", ProductoRoutes);
 app.use("/comentario", comentarioRoutes);
+app.use("/carrito", carritoRoutes);
+app.use("/departamento", DepartamentoRoutes);
+app.use("/provincia", ProvinciaRoutes);
+app.use("/distrito", DistritoRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
