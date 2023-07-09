@@ -17,6 +17,7 @@ import { carritoRoutes } from "./src/routes/carrito.routers";
 import { DepartamentoRoutes } from "./src/routes/departamento.routes";
 import { ProvinciaRoutes } from "./src/routes/provincia.routes";
 import { DistritoRoutes } from "./src/routes/distrito.routes";
+import { PedidoRoutes } from "./src/routes/pedido.route";
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use("/carrito", carritoRoutes);
 app.use("/departamento", DepartamentoRoutes);
 app.use("/provincia", ProvinciaRoutes);
 app.use("/distrito", DistritoRoutes);
+app.use("/pedido", PedidoRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication

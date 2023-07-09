@@ -52,6 +52,12 @@ Usuario.init(
 		fecha_final: {
 			type: DataTypes.STRING,
 		},
+		direccion: {
+			type: DataTypes.STRING,
+		},
+		telefono: {
+			type: DataTypes.STRING,
+		},
 	},
 	{
 		sequelize,

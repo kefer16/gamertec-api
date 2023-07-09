@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
-import { Usuario } from "../models/usuario.models";
+
 import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { UsuarioHistorial } from "../models/usuario_historial.models";
+import { PedidoCabecera } from "../models/pedido_cabecera.model";
+import { sequelize } from "../config/conexion";
+import { PedidoCabeceraModel } from "../interfaces/pedido_cabecera.interface";
+import { PedidoDetalleModel } from "../interfaces/pedido_detalle.interface";
+import { PedidoDetalle } from "../models/pedido_detalle.model";
+import { Transaction } from "sequelize";
 
-export class UsuarioController {
+export class PedidoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
@@ -14,7 +19,7 @@ export class UsuarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await Usuario.findAll({
+			const result = await PedidoCabecera.findAll({
 				order: [["fecha_registro", "DESC"]],
 			});
 			respuestaJson = {
@@ -38,27 +43,27 @@ export class UsuarioController {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
+
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
 
-			const idUsuario = req.query.usuario_id;
+			const ID: number = Number(req.query.pedido_id);
 
-			if (idUsuario === undefined) {
+			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
+						message: "no se envió la variable [pedido_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Usuario | null = await Usuario.findOne({
+			const result: PedidoCabecera | null = await PedidoCabecera.findOne({
 				where: {
-					usuario_id: idUsuario,
+					pedido_cabecera_id: ID,
 				},
 			});
 
@@ -70,6 +75,9 @@ export class UsuarioController {
 					message: "",
 				},
 			};
+
+			console.log(respuestaJson);
+
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
@@ -82,49 +90,36 @@ export class UsuarioController {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
+
+		const transaction: Transaction = await sequelize.transaction();
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
+			const pedido_cabecera: PedidoCabeceraModel = req.body.pedido_cabecera;
+			const pedido_detalle: PedidoDetalleModel[] = req.body.pedido_detalle;
 
-			const {
-				nombre,
-				apellido,
-				correo,
-				usuario,
-				contrasenia,
-				dinero,
-				foto,
-				fecha_registro,
-				fk_privilegio,
-				direccion,
-				telefono,
-			} = req.body;
-
-			const result: Usuario = await Usuario.create({
-				nombre: nombre,
-				apellido: apellido,
-				correo: correo,
-				usuario: usuario,
-				contrasenia: contrasenia,
-				dinero: dinero,
-				foto: foto,
-				fecha_registro: fecha_registro,
-				activo: 1,
-				fk_privilegio: fk_privilegio,
-				direccion: direccion,
-				telefono: telefono,
-			});
+			const result_cabecera: PedidoCabecera = await PedidoCabecera.create(
+				pedido_cabecera,
+				{ transaction }
+			);
+			const result_detalle: PedidoDetalle[] = await PedidoDetalle.bulkCreate(
+				pedido_detalle,
+				{ transaction }
+			);
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: [result_cabecera, result_detalle],
 				error: {
 					code: 0,
 					message: "",
 				},
 			};
+
 			res.status(codigo).json(respuestaJson);
+			await transaction.commit();
 		} catch (error: any) {
+			await transaction.rollback();
 			codigo = 500;
 			ErrorController.grabarError(codigo, error, res);
 		} finally {
@@ -139,140 +134,51 @@ export class UsuarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const idUsuario = req.query.usuario_id;
+
+			const ID: number = Number(req.query.pedido_id);
+
 			const {
-				nombre,
-				apellido,
-				correo,
-				usuario,
-				contrasenia,
-				dinero,
-				foto,
-				activo,
-				fk_privilegio,
+				pedido_cabecera_id,
+				codigo,
 				direccion,
 				telefono,
+				sub_total,
+				costo_envio,
+				total,
+				fecha_registro,
+				activo,
+				fk_distrito,
+				fk_usuario,
 			} = req.body;
 
-			await Usuario.update(
+			await PedidoCabecera.update(
 				{
-					nombre: nombre,
-					apellido: apellido,
-					correo: correo,
-					usuario: usuario,
-					contrasenia: contrasenia,
-					dinero: dinero,
-					foto: foto,
-					activo: activo,
-					fk_privilegio: fk_privilegio,
-					direccion: direccion,
-					telefono: telefono,
+					pedido_cabecera_id,
+					codigo,
+					direccion,
+					telefono,
+					sub_total,
+					costo_envio,
+					total,
+					fecha_registro,
+					activo,
+					fk_distrito,
+					fk_usuario,
 				},
 				{
 					where: {
-						usuario_id: idUsuario,
+						pedido_cabecera_id: ID,
 					},
 				}
 			);
 
-			const filaActaulizada: Usuario | null = await Usuario.findOne({
+			const filaActualizada: PedidoCabecera | null = await PedidoCabecera.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { usuario_id: idUsuario },
+				where: { pedido_cabecera_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActaulizada ?? {}],
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
-	}
-
-	static async login(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-
-			const { usuario, contrasenia } = req.body;
-
-			const usuarioLogeado: Usuario | null = await Usuario.findOne({
-				where: {
-					usuario: usuario,
-					contrasenia: contrasenia,
-				},
-			});
-			if (!usuarioLogeado) {
-				respuestaJson = {
-					code: 404,
-					data: [{}],
-					error: {
-						code: 0,
-						message: "usuario o contrasenia incorrecta",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			respuestaJson = {
-				code: codigo,
-				data: [usuarioLogeado ?? {}],
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
-	}
-
-	static async historial(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
-			const idUsuario = req.query.usuario_id;
-
-			if (idUsuario === undefined) {
-				respuestaJson = {
-					code: 404,
-					data: [],
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result: UsuarioHistorial[] = await UsuarioHistorial.findAll({
-				where: {
-					usuario_id: idUsuario,
-				},
-
-				order: [["fecha_final", "DESC"]],
-			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
+				data: [filaActualizada ?? {}],
 				error: {
 					code: 0,
 					message: "",
@@ -295,7 +201,7 @@ export class UsuarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.usuario_id;
+			const ID: number = Number(req.query.pedido_id);
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -303,15 +209,15 @@ export class UsuarioController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
+						message: "no se envió la variable [pedido_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Usuario.destroy({
+			await PedidoCabecera.destroy({
 				where: {
-					usuario_id: ID,
+					pedido_cabecera_id: ID,
 				},
 			});
 
