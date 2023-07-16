@@ -4,17 +4,17 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { PedidoCabecera } from "../models/pedido_cabecera.model";
 import { sequelize } from "../config/conexion";
 
 import { Transaction } from "sequelize";
-import { PedidoCabeceraModel } from "../interfaces/pedido_cabecera.interface";
-import { PedidoDetalleSinIdModel } from "../interfaces/pedido_detalle.interface";
-import { PedidoDetalle } from "../models/pedido_detalle.model";
-import { Carrito } from "../models/carrito.models";
-import { Modelo } from "../models/modelo.models";
 
-export class PedidoController {
+import { Modelo } from "../models/modelo.models";
+import { CompraCabecera } from "../models/compra_cabecera.model";
+import { CompraCabeceraModel } from "../interfaces/compra_cabecera.interface";
+import { CompraDetalle } from "../models/compra_detalle.model";
+import { CompraDetalleModel } from "../interfaces/compra_detalle.interface";
+
+export class CompraController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
@@ -22,7 +22,7 @@ export class PedidoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await PedidoCabecera.findAll({
+			const result = await CompraCabecera.findAll({
 				order: [["fecha_registro", "DESC"]],
 			});
 			respuestaJson = {
@@ -50,7 +50,7 @@ export class PedidoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID: number = Number(req.query.pedido_id);
+			const ID: number = Number(req.query.compra_cabecera_id);
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -58,15 +58,15 @@ export class PedidoController {
 					data: [{}],
 					error: {
 						code: 0,
-						message: "no se envió la variable [pedido_id] como parametro",
+						message: "no se envió la variable [compra_cabecera_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: PedidoCabecera | null = await PedidoCabecera.findOne({
+			const result: CompraCabecera | null = await CompraCabecera.findOne({
 				where: {
-					pedido_cabecera_id: ID,
+					compra_cabecera_id: ID,
 				},
 			});
 
@@ -98,7 +98,7 @@ export class PedidoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const result: PedidoCabecera | null = await PedidoCabecera.findOne({
+			const result: CompraCabecera | null = await CompraCabecera.findOne({
 				order: [["pedido_cabecera_id", "DESC"]],
 			});
 
@@ -133,34 +133,33 @@ export class PedidoController {
 				const transaction: Transaction = await sequelize.transaction();
 
 				try {
-					const pedido_cabecera: PedidoCabeceraModel = req.body;
+					const compra_cabecera: CompraCabeceraModel = req.body;
 
-					const result_cabecera: PedidoCabecera = await PedidoCabecera.create(
-						pedido_cabecera,
+					const result_cabecera: CompraCabecera = await CompraCabecera.create(
+						compra_cabecera,
 						{ transaction }
 					);
 
-					let pedido_detalle: PedidoDetalleSinIdModel[] =
-						req.body.array_pedido_detalle;
+					let compra_detalle: CompraDetalleModel[] = req.body.array_compra_detalle;
 
-					pedido_detalle = pedido_detalle.map((item: PedidoDetalleSinIdModel) => ({
+					compra_detalle = compra_detalle.map((item: CompraDetalleModel) => ({
 						...item,
-						fk_pedido_cabecera: Number(result_cabecera.dataValues.pedido_cabecera_id),
+						fk_compra_cabecera: Number(result_cabecera.dataValues.compra_cabecera_id),
 					}));
 
-					const result_detalle: PedidoDetalle[] = await PedidoDetalle.bulkCreate(
-						pedido_detalle,
+					const result_detalle: CompraDetalle[] = await CompraDetalle.bulkCreate(
+						compra_detalle,
 						{ transaction }
 					);
 
-					await Carrito.update(
-						{ pedido: true },
-						{ where: { pedido: false, activo: true, despues: false } }
-					);
+					// await Carrito.update(
+					// 	{ pedido: true },
+					// 	{ where: { pedido: false, activo: true, despues: false } }
+					// );
 
 					respuestaJson = {
 						code: codigo1,
-						data: [result_detalle],
+						data: result_detalle,
 						error: {
 							code: 0,
 							message: "",
@@ -191,10 +190,10 @@ export class PedidoController {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 
-			const ID: number = Number(req.query.pedido_id);
+			const ID: number = Number(req.query.compra_cabecera_id);
 
 			const {
-				pedido_cabecera_id,
+				compra_cabecera_id,
 				codigo,
 				direccion,
 				telefono,
@@ -204,12 +203,13 @@ export class PedidoController {
 				fecha_registro,
 				activo,
 				fk_distrito,
+				fk_pedido_cabecera,
 				fk_usuario,
 			} = req.body;
 
-			await PedidoCabecera.update(
+			await CompraCabecera.update(
 				{
-					pedido_cabecera_id,
+					compra_cabecera_id,
 					codigo,
 					direccion,
 					telefono,
@@ -219,18 +219,19 @@ export class PedidoController {
 					fecha_registro,
 					activo,
 					fk_distrito,
+					fk_pedido_cabecera,
 					fk_usuario,
 				},
 				{
 					where: {
-						pedido_cabecera_id: ID,
+						compra_cabecera_id: ID,
 					},
 				}
 			);
 
-			const filaActualizada: PedidoCabecera | null = await PedidoCabecera.findOne({
+			const filaActualizada: CompraCabecera | null = await CompraCabecera.findOne({
 				// Condiciones para obtener el registro actualizado
-				where: { pedido_cabecera_id: ID },
+				where: { compra_cabecera_id: ID },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -271,9 +272,9 @@ export class PedidoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await PedidoCabecera.destroy({
+			await CompraCabecera.destroy({
 				where: {
-					pedido_cabecera_id: ID,
+					compra_cabecera_id: ID,
 				},
 			});
 
@@ -295,7 +296,7 @@ export class PedidoController {
 		}
 	}
 
-	static async listarPedidosUsuario(req: Request, res: Response) {
+	static async listarComprasUsuario(req: Request, res: Response) {
 		const code_send = uuidv4();
 		let respuestaJson: RespuestaEntity = new RespuestaEntity();
 		let codigo: number = 200;
@@ -317,35 +318,23 @@ export class PedidoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			// const cabecera: PedidoCabeceraModel | null = await PedidoCabecera.findOne({
-			// 	where: { fk_usuario: usuario_id, activo: true },
-			// });
-
-			// const pedido_cabecera_id: number | undefined = cabecera?.pedido_cabecera_id;
-
-			// console.log(pedido_cabecera_id);
-
-			// const detalle: PedidoDetalleModel[] = await PedidoDetalle.findAll({
-			// 	where: { fk_pedido_cabecera: pedido_cabecera_id, activo: true },
-			// });
-
-			PedidoCabecera.hasOne(PedidoDetalle, { foreignKey: "fk_pedido_cabecera" });
-			PedidoDetalle.belongsTo(PedidoCabecera, {
-				foreignKey: "fk_pedido_cabecera",
+			CompraCabecera.hasOne(CompraDetalle, { foreignKey: "fk_compra_cabecera" });
+			CompraDetalle.belongsTo(CompraCabecera, {
+				foreignKey: "fk_compra_cabecera",
 			});
 
-			PedidoDetalle.hasOne(Modelo, {
+			CompraDetalle.hasOne(Modelo, {
 				foreignKey: "modelo_id",
 				sourceKey: "fk_modelo",
 			});
-			Modelo.belongsTo(PedidoDetalle, {
+			Modelo.belongsTo(CompraDetalle, {
 				foreignKey: "modelo_id",
 				targetKey: "fk_modelo",
 			});
 
-			const pedido = await PedidoCabecera.findAll({
+			const pedido = await CompraCabecera.findAll({
 				attributes: [
-					"pedido_cabecera_id",
+					"compra_cabecera_id",
 					"codigo",
 					"sub_total",
 					"costo_envio",
@@ -355,9 +344,9 @@ export class PedidoController {
 				],
 				include: [
 					{
-						model: PedidoDetalle,
+						model: CompraDetalle,
 						attributes: [
-							"pedido_detalle_id",
+							"compra_detalle_id",
 							"item",
 							"cantidad",
 							"precio",

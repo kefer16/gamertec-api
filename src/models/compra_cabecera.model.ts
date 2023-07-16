@@ -1,10 +1,10 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
-import { PedidoCabeceraModel } from "../interfaces/pedido_cabecera.interface";
+import { CompraCabeceraModel } from "../interfaces/compra_cabecera.interface";
 
-export class PedidoCabecera
-	extends Model<PedidoCabeceraModel>
-	implements PedidoCabeceraModel
+export class CompraCabecera
+	extends Model<CompraCabeceraModel>
+	implements CompraCabeceraModel
 {
 	public codigo!: string;
 	public direccion!: string;
@@ -15,12 +15,13 @@ export class PedidoCabecera
 	public fecha_registro!: string;
 	public activo!: boolean;
 	public fk_distrito!: number;
+	public fk_pedido_cabecera!: number;
 	public fk_usuario!: number;
 }
 
-PedidoCabecera.init(
+CompraCabecera.init(
 	{
-		pedido_cabecera_id: {
+		compra_cabecera_id: {
 			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true,
@@ -53,13 +54,16 @@ PedidoCabecera.init(
 		fk_distrito: {
 			type: DataTypes.INTEGER,
 		},
+		fk_pedido_cabecera: {
+			type: DataTypes.INTEGER,
+		},
 		fk_usuario: {
 			type: DataTypes.INTEGER,
 		},
 	},
 	{
 		sequelize,
-		modelName: "pedido_cabecera",
+		modelName: "compra_cabecera",
 		timestamps: false,
 	}
 );

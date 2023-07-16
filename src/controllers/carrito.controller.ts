@@ -44,7 +44,7 @@ export class CarritoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.carrito_id;
+			const ID = Number(req.query.carrito_id);
 
 			if (ID === undefined) {
 				respuestaJson = {
@@ -94,7 +94,7 @@ export class CarritoController {
 				cantidad,
 				precio_total,
 				despues,
-				comprado,
+				pedido,
 				fecha_registro,
 				activo,
 				fk_usuario,
@@ -104,7 +104,7 @@ export class CarritoController {
 				cantidad,
 				precio_total,
 				despues,
-				comprado,
+				pedido,
 				fecha_registro,
 				activo,
 				fk_usuario,
@@ -135,12 +135,12 @@ export class CarritoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.carrito_id;
+			const ID = Number(req.query.carrito_id);
 			const {
 				cantidad,
 				precio_total,
 				despues,
-				comprado,
+				pedido,
 				fecha_registro,
 				activo,
 				fk_usuario,
@@ -152,7 +152,7 @@ export class CarritoController {
 					cantidad,
 					precio_total,
 					despues,
-					comprado,
+					pedido,
 					fecha_registro,
 					activo,
 					fk_usuario,
@@ -193,7 +193,7 @@ export class CarritoController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.carrito_id;
+			const ID = Number(req.query.carrito_id);
 
 			if (ID === undefined) {
 				respuestaJson = {

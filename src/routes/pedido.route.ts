@@ -8,5 +8,7 @@ router.get("/uno", PedidoController.listarUno);
 router.post("/registrar", PedidoController.registrar);
 router.put("/actualizar", PedidoController.actualizar);
 router.delete("/eliminar", PedidoController.eliminarUno);
+router.get("/ultimo", PedidoController.listarUltimo);
+router.get("/pedidos_usuario", PedidoController.listarPedidosUsuario);
 
 export { router as PedidoRoutes };

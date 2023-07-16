@@ -1,15 +1,16 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
+import { CarritoModel } from "../interfaces/carrito.interface";
 
-export class Carrito extends Model {}
-
-export class CarritoModel {
-	constructor(
-		public carrito_id: number = 0,
-		public cantidad: number = 0,
-		public fecha_registro: string = "",
-		public activo: boolean = false
-	) {}
+export class Carrito extends Model<CarritoModel> implements CarritoModel {
+	public cantidad!: number;
+	public precio_total!: number;
+	public despues!: boolean;
+	public pedido!: boolean;
+	public fecha_registro!: string;
+	public activo!: boolean;
+	public fk_usuario!: number;
+	public fk_modelo!: number;
 }
 
 Carrito.init(
@@ -27,10 +28,10 @@ Carrito.init(
 			type: DataTypes.DOUBLE,
 		},
 		despues: {
-			type: DataTypes.NUMBER,
+			type: DataTypes.BOOLEAN,
 		},
-		comprado: {
-			type: DataTypes.NUMBER,
+		pedido: {
+			type: DataTypes.BOOLEAN,
 		},
 		fecha_registro: {
 			type: DataTypes.STRING,
