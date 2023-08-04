@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 import { PedidoDetalleModel } from "../interfaces/pedido_detalle.interface";
+import { Modelo } from "./modelo.models";
 
 export class PedidoDetalle
 	extends Model<PedidoDetalleModel>
@@ -12,6 +13,7 @@ export class PedidoDetalle
 	public total!: number;
 	public fecha_registro!: string;
 	public activo!: boolean;
+	public comprado!: boolean;
 	public fk_modelo!: number;
 	public fk_pedido_cabecera!: number;
 }
@@ -42,6 +44,9 @@ PedidoDetalle.init(
 		activo: {
 			type: DataTypes.BOOLEAN,
 		},
+		comprado: {
+			type: DataTypes.BOOLEAN,
+		},
 		fk_modelo: {
 			type: DataTypes.INTEGER,
 		},
@@ -55,3 +60,12 @@ PedidoDetalle.init(
 		timestamps: false,
 	}
 );
+
+PedidoDetalle.hasOne(Modelo, {
+	foreignKey: "modelo_id",
+	sourceKey: "fk_modelo",
+});
+Modelo.belongsTo(PedidoDetalle, {
+	foreignKey: "modelo_id",
+	targetKey: "fk_modelo",
+});

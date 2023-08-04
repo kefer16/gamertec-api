@@ -29,9 +29,9 @@ export class ApiEnvioController {
 		}
 	}
 
-	static async grabarRespuestaAPI(
+	static async grabarRespuestaAPI<T>(
 		code_send: string,
-		data: RespuestaEntity | RespuestaTokenEntity,
+		data: RespuestaEntity<T> | RespuestaTokenEntity,
 		res: Response
 	) {
 		try {

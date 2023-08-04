@@ -13,11 +13,12 @@ import { PedidoDetalleSinIdModel } from "../interfaces/pedido_detalle.interface"
 import { PedidoDetalle } from "../models/pedido_detalle.model";
 import { Carrito } from "../models/carrito.models";
 import { Modelo } from "../models/modelo.models";
+// import { Modelo } from "../models/modelo.models";
 
 export class PedidoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<PedidoCabecera[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -44,7 +45,8 @@ export class PedidoController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<PedidoCabecera | {}> =
+			new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -52,10 +54,10 @@ export class PedidoController {
 
 			const ID: number = Number(req.query.pedido_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [pedido_id] como parametro",
@@ -65,6 +67,41 @@ export class PedidoController {
 			}
 
 			const result: PedidoCabecera | null = await PedidoCabecera.findOne({
+				attributes: [
+					"pedido_cabecera_id",
+					"codigo",
+					"direccion",
+					"telefono",
+					"sub_total",
+					"costo_envio",
+					"total",
+					"fecha_registro",
+					"activo",
+				],
+
+				include: [
+					{
+						model: PedidoDetalle,
+						as: "array_pedido_detalle",
+						attributes: [
+							"pedido_detalle_id",
+							"item",
+							"cantidad",
+							"precio",
+							"total",
+							"fecha_registro",
+							"activo",
+						],
+						include: [
+							{
+								model: Modelo,
+								as: "modelo",
+								attributes: ["modelo_id", "nombre", "descripcion", "foto"],
+							},
+						],
+					},
+				],
+
 				where: {
 					pedido_cabecera_id: ID,
 				},
@@ -72,7 +109,7 @@ export class PedidoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -92,7 +129,7 @@ export class PedidoController {
 
 	static async listarUltimo(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<PedidoCabecera> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -104,7 +141,7 @@ export class PedidoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -122,62 +159,57 @@ export class PedidoController {
 
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
-		let codigo1: number = 200;
+		let respuestaJson: RespuestaEntity<PedidoDetalle[]> = new RespuestaEntity();
+		let codigo: number = 200;
 
+		await ApiEnvioController.grabarEnvioAPI(code_send, req);
+		const transaction: Transaction = await sequelize.transaction();
 		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+			// (async () => {
+			// await sequelize.authenticate();
 
-			(async () => {
-				// await sequelize.authenticate();
-				const transaction: Transaction = await sequelize.transaction();
+			const pedido_cabecera: PedidoCabeceraModel = req.body.pedido_cabecera;
 
-				try {
-					const pedido_cabecera: PedidoCabeceraModel = req.body;
+			const result_cabecera: PedidoCabecera = await PedidoCabecera.create(
+				pedido_cabecera,
+				{ transaction }
+			);
 
-					const result_cabecera: PedidoCabecera = await PedidoCabecera.create(
-						pedido_cabecera,
-						{ transaction }
-					);
+			let pedido_detalle: PedidoDetalleSinIdModel[] =
+				req.body.array_pedido_detalle;
 
-					let pedido_detalle: PedidoDetalleSinIdModel[] =
-						req.body.array_pedido_detalle;
+			pedido_detalle = pedido_detalle.map((item: PedidoDetalleSinIdModel) => ({
+				...item,
+				fk_pedido_cabecera: Number(result_cabecera.dataValues.pedido_cabecera_id),
+			}));
 
-					pedido_detalle = pedido_detalle.map((item: PedidoDetalleSinIdModel) => ({
-						...item,
-						fk_pedido_cabecera: Number(result_cabecera.dataValues.pedido_cabecera_id),
-					}));
+			const result_detalle: PedidoDetalle[] = await PedidoDetalle.bulkCreate(
+				pedido_detalle,
+				{ transaction }
+			);
 
-					const result_detalle: PedidoDetalle[] = await PedidoDetalle.bulkCreate(
-						pedido_detalle,
-						{ transaction }
-					);
+			await Carrito.update(
+				{ pedido: true },
+				{ where: { pedido: false, activo: true, despues: false } }
+			);
 
-					await Carrito.update(
-						{ pedido: true },
-						{ where: { pedido: false, activo: true, despues: false } }
-					);
+			respuestaJson = {
+				code: codigo,
+				data: result_detalle,
+				error: {
+					code: 0,
+					message: "",
+				},
+			};
 
-					respuestaJson = {
-						code: codigo1,
-						data: [result_detalle],
-						error: {
-							code: 0,
-							message: "",
-						},
-					};
+			await transaction.commit();
 
-					await transaction.commit();
-				} catch (error: any) {
-					console.log(error.message);
-
-					codigo1 = 500;
-					await transaction.rollback();
-				}
-			})();
-			res.status(codigo1).json(respuestaJson);
+			// })();
+			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
-			ErrorController.grabarError(codigo1, error, res);
+			await transaction.rollback();
+			codigo = 500;
+			ErrorController.grabarError(codigo, error, res);
 		} finally {
 			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
@@ -185,7 +217,7 @@ export class PedidoController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<PedidoCabecera> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -234,7 +266,7 @@ export class PedidoController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActualizada ?? {}],
+				data: filaActualizada,
 				error: {
 					code: 0,
 					message: "",
@@ -251,7 +283,7 @@ export class PedidoController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -279,7 +311,7 @@ export class PedidoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: {},
 				error: {
 					code: 0,
 					message: "",
@@ -297,7 +329,7 @@ export class PedidoController {
 
 	static async listarPedidosUsuario(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<PedidoCabecera[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -308,7 +340,7 @@ export class PedidoController {
 			if (Number.isNaN(usuario_id)) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: [],
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",
@@ -316,32 +348,6 @@ export class PedidoController {
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
-
-			// const cabecera: PedidoCabeceraModel | null = await PedidoCabecera.findOne({
-			// 	where: { fk_usuario: usuario_id, activo: true },
-			// });
-
-			// const pedido_cabecera_id: number | undefined = cabecera?.pedido_cabecera_id;
-
-			// console.log(pedido_cabecera_id);
-
-			// const detalle: PedidoDetalleModel[] = await PedidoDetalle.findAll({
-			// 	where: { fk_pedido_cabecera: pedido_cabecera_id, activo: true },
-			// });
-
-			PedidoCabecera.hasOne(PedidoDetalle, { foreignKey: "fk_pedido_cabecera" });
-			PedidoDetalle.belongsTo(PedidoCabecera, {
-				foreignKey: "fk_pedido_cabecera",
-			});
-
-			PedidoDetalle.hasOne(Modelo, {
-				foreignKey: "modelo_id",
-				sourceKey: "fk_modelo",
-			});
-			Modelo.belongsTo(PedidoDetalle, {
-				foreignKey: "modelo_id",
-				targetKey: "fk_modelo",
-			});
 
 			const pedido = await PedidoCabecera.findAll({
 				attributes: [
@@ -353,9 +359,11 @@ export class PedidoController {
 					"fecha_registro",
 					"activo",
 				],
+
 				include: [
 					{
 						model: PedidoDetalle,
+						as: "array_pedido_detalle",
 						attributes: [
 							"pedido_detalle_id",
 							"item",
@@ -368,6 +376,7 @@ export class PedidoController {
 						include: [
 							{
 								model: Modelo,
+								as: "modelo",
 								attributes: ["modelo_id", "nombre", "descripcion", "foto"],
 							},
 						],

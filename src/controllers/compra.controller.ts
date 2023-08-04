@@ -17,7 +17,7 @@ import { CompraDetalleModel } from "../interfaces/compra_detalle.interface";
 export class CompraController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraCabecera[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -44,7 +44,8 @@ export class CompraController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraCabecera | {}> =
+			new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -55,7 +56,7 @@ export class CompraController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [compra_cabecera_id] como parametro",
@@ -72,7 +73,7 @@ export class CompraController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -92,7 +93,7 @@ export class CompraController {
 
 	static async listarUltimo(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraCabecera> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -104,7 +105,7 @@ export class CompraController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -122,7 +123,7 @@ export class CompraController {
 
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraDetalle[]> = new RespuestaEntity();
 		let codigo1: number = 200;
 
 		try {
@@ -184,7 +185,7 @@ export class CompraController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraCabecera> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -235,7 +236,7 @@ export class CompraController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActualizada ?? {}],
+				data: filaActualizada,
 				error: {
 					code: 0,
 					message: "",
@@ -252,7 +253,7 @@ export class CompraController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -263,7 +264,7 @@ export class CompraController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [pedido_id] como parametro",
@@ -280,7 +281,7 @@ export class CompraController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: {},
 				error: {
 					code: 0,
 					message: "",
@@ -298,7 +299,7 @@ export class CompraController {
 
 	static async listarComprasUsuario(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CompraCabecera[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -309,7 +310,7 @@ export class CompraController {
 			if (Number.isNaN(usuario_id)) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: [],
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",

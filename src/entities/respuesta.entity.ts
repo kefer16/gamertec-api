@@ -1,17 +1,9 @@
-export class RespuestaEntity {
-	code: number;
-	data: Array<any>;
-	error: ErrorEntity;
-
+export class RespuestaEntity<T> {
 	constructor(
-		code: number = 0,
-		data: Array<any> = [],
-		error: ErrorEntity = new ErrorEntity(0, "")
-	) {
-		this.code = code;
-		this.data = data;
-		this.error = error;
-	}
+		public code: number = 0,
+		public data: T | null = null,
+		public error: ErrorEntity = new ErrorEntity(0, "")
+	) {}
 }
 
 export class ErrorEntity {

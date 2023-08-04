@@ -9,11 +9,11 @@ import { Comentario } from "../models/comentario.models";
 export class ComentarioController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Comentario[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result = await Comentario.findAll({
+			const result: Comentario[] = await Comentario.findAll({
 				order: [["fecha_registro", "DESC"]],
 			});
 			respuestaJson = {
@@ -35,7 +35,7 @@ export class ComentarioController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Comentario | {}> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -46,7 +46,7 @@ export class ComentarioController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [comentario_id] como parametro",
@@ -63,7 +63,7 @@ export class ComentarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -82,7 +82,7 @@ export class ComentarioController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Comentario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -110,7 +110,7 @@ export class ComentarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -127,7 +127,7 @@ export class ComentarioController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Comentario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -168,7 +168,7 @@ export class ComentarioController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActualizada ?? {}],
+				data: filaActualizada,
 				error: {
 					code: 0,
 					message: "",
@@ -184,7 +184,7 @@ export class ComentarioController {
 	}
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -195,7 +195,7 @@ export class ComentarioController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [comentario_id] como parametro",
@@ -212,7 +212,7 @@ export class ComentarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: {},
 				error: {
 					code: 0,
 					message: "",
@@ -230,7 +230,7 @@ export class ComentarioController {
 
 	static async buscarPorModelo(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Comentario[]> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -241,7 +241,7 @@ export class ComentarioController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: [],
 					error: {
 						code: 0,
 						message: "no se envió la variable [modelo_id] como parametro",

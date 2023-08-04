@@ -9,7 +9,7 @@ import { Privilegio } from "../models/privilegio.models";
 export class PrivilegioController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Privilegio[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -36,7 +36,7 @@ export class PrivilegioController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Privilegio> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -48,7 +48,7 @@ export class PrivilegioController {
 			if (idPrivilegio === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [privilegio_id] como parametro",
@@ -65,7 +65,7 @@ export class PrivilegioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -84,7 +84,7 @@ export class PrivilegioController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Privilegio> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -99,7 +99,7 @@ export class PrivilegioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -116,7 +116,7 @@ export class PrivilegioController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Privilegio> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -144,7 +144,7 @@ export class PrivilegioController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActaulizada ?? {}],
+				data: filaActaulizada,
 				error: {
 					code: 0,
 					message: "",
@@ -160,7 +160,7 @@ export class PrivilegioController {
 	}
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<null> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -171,7 +171,7 @@ export class PrivilegioController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [privilegio_id] como parametro",
@@ -188,7 +188,7 @@ export class PrivilegioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: null,
 				error: {
 					code: 0,
 					message: "",

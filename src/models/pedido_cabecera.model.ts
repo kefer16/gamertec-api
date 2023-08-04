@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../config/conexion";
 import { PedidoCabeceraModel } from "../interfaces/pedido_cabecera.interface";
+import { PedidoDetalle } from "./pedido_detalle.model";
 
 export class PedidoCabecera
 	extends Model<PedidoCabeceraModel>
@@ -63,3 +64,12 @@ PedidoCabecera.init(
 		timestamps: false,
 	}
 );
+
+PedidoCabecera.hasMany(PedidoDetalle, {
+	foreignKey: "fk_pedido_cabecera",
+	as: "array_pedido_detalle",
+});
+
+PedidoDetalle.belongsTo(PedidoCabecera, {
+	foreignKey: "fk_pedido_cabecera",
+});

@@ -12,7 +12,7 @@ import { QueryTypes } from "sequelize";
 export class CarritoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Carrito[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -38,7 +38,7 @@ export class CarritoController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Carrito> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -49,7 +49,7 @@ export class CarritoController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [carrito_id] como parametro",
@@ -66,7 +66,7 @@ export class CarritoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -85,7 +85,7 @@ export class CarritoController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Carrito> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -113,7 +113,7 @@ export class CarritoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -130,7 +130,7 @@ export class CarritoController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Carrito> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -171,7 +171,7 @@ export class CarritoController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActualizada ?? {}],
+				data: filaActualizada,
 				error: {
 					code: 0,
 					message: "",
@@ -187,7 +187,7 @@ export class CarritoController {
 	}
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -198,7 +198,7 @@ export class CarritoController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: {},
 					error: {
 						code: 0,
 						message: "no se envió la variable [carrito_id] como parametro",
@@ -215,7 +215,7 @@ export class CarritoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: {},
 				error: {
 					code: 0,
 					message: "",
@@ -233,7 +233,8 @@ export class CarritoController {
 
 	static async obtenerCarritoPorUsuario(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CarritoInterface[]> =
+			new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -244,7 +245,7 @@ export class CarritoController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: [],
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",

@@ -10,6 +10,7 @@ export class CompraDetalle
 	public cantidad!: number;
 	public precio!: number;
 	public total!: number;
+	public serie!: string;
 	public fecha_registro!: string;
 	public activo!: boolean;
 	public fk_modelo!: number;
@@ -36,6 +37,9 @@ CompraDetalle.init(
 		},
 		total: {
 			type: DataTypes.DOUBLE,
+		},
+		serie: {
+			type: DataTypes.STRING,
 		},
 		fecha_registro: {
 			type: DataTypes.STRING,

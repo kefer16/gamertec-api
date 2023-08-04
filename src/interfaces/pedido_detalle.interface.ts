@@ -6,6 +6,7 @@ export interface PedidoDetalleModel {
 	total: number;
 	fecha_registro: string;
 	activo: boolean;
+	comprado: boolean;
 	fk_modelo: number;
 	fk_pedido_cabecera: number;
 }
@@ -17,6 +18,7 @@ export interface PedidoDetalleSinIdModel {
 	total: number;
 	fecha_registro: string;
 	activo: boolean;
+	comprado: boolean;
 	fk_modelo: number;
 	fk_pedido_cabecera: number;
 }

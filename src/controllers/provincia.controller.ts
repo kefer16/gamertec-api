@@ -10,7 +10,7 @@ import { Provincia } from "../models/provincia.models";
 export class ProvinciaController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Provincia[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -37,7 +37,7 @@ export class ProvinciaController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Provincia> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -48,7 +48,7 @@ export class ProvinciaController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [provincia_id] como parametro",
@@ -65,7 +65,7 @@ export class ProvinciaController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -84,7 +84,7 @@ export class ProvinciaController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Provincia> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -98,7 +98,7 @@ export class ProvinciaController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -115,7 +115,7 @@ export class ProvinciaController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Provincia> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -142,7 +142,7 @@ export class ProvinciaController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActualizada ?? {}],
+				data: filaActualizada,
 				error: {
 					code: 0,
 					message: "",
@@ -159,7 +159,7 @@ export class ProvinciaController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<null> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -170,7 +170,7 @@ export class ProvinciaController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [provincia_id] como parametro",
@@ -187,7 +187,7 @@ export class ProvinciaController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: null,
 				error: {
 					code: 0,
 					message: "",

@@ -4,6 +4,7 @@ export interface CompraDetalleModel {
 	cantidad: number;
 	precio: number;
 	total: number;
+	serie: string;
 	fecha_registro: string;
 	activo: boolean;
 	fk_modelo: number;

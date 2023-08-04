@@ -9,7 +9,7 @@ import { UsuarioHistorial } from "../models/usuario_historial.models";
 export class UsuarioController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Usuario[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -36,7 +36,7 @@ export class UsuarioController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Usuario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -47,7 +47,7 @@ export class UsuarioController {
 			if (idUsuario === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",
@@ -64,7 +64,7 @@ export class UsuarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result ?? {}],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -80,7 +80,7 @@ export class UsuarioController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Usuario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -117,7 +117,7 @@ export class UsuarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [result],
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -134,7 +134,7 @@ export class UsuarioController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Usuario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -181,7 +181,7 @@ export class UsuarioController {
 			});
 			respuestaJson = {
 				code: codigo,
-				data: [filaActaulizada ?? {}],
+				data: filaActaulizada,
 				error: {
 					code: 0,
 					message: "",
@@ -198,11 +198,10 @@ export class UsuarioController {
 
 	static async login(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<Usuario> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
 
 			const { usuario, contrasenia } = req.body;
 
@@ -215,7 +214,7 @@ export class UsuarioController {
 			if (!usuarioLogeado) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "usuario o contrasenia incorrecta",
@@ -226,7 +225,7 @@ export class UsuarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [usuarioLogeado ?? {}],
+				data: usuarioLogeado,
 				error: {
 					code: 0,
 					message: "",
@@ -243,7 +242,8 @@ export class UsuarioController {
 
 	static async historial(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<UsuarioHistorial[]> =
+			new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -253,7 +253,7 @@ export class UsuarioController {
 			if (idUsuario === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",
@@ -289,7 +289,7 @@ export class UsuarioController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<null> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
@@ -300,7 +300,7 @@ export class UsuarioController {
 			if (ID === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [{}],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [usuario_id] como parametro",
@@ -317,7 +317,7 @@ export class UsuarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: [],
+				data: null,
 				error: {
 					code: 0,
 					message: "",
