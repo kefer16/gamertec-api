@@ -4,23 +4,27 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Modelo } from "../models/modelo.models";
-import { sequelize } from "../config/conexion";
-import { modeloFiltroInterface } from "../interfaces/productos.interface";
-import { QueryTypes } from "sequelize";
-import { modeloDescripcionProps } from "../interfaces/modelo.interface";
+import { prisma } from "../config/conexion";
+import {
+	ModeloDescripcionSend,
+	ModeloPorFiltroSend,
+	ModeloSend,
+} from "../interfaces/modelo.interface";
 
 export class ModeloController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Modelo[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ModeloSend[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-			const result = await Modelo.findAll({
-				order: [["fecha_registro", "DESC"]],
+
+			const result = await prisma.modelo.findMany({
+				orderBy: {
+					fecha_registro: "desc",
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
 				data: result,
@@ -40,18 +44,18 @@ export class ModeloController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Modelo | {}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ModeloSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.modelo_id;
+			const ID = Number(req.query.modelo_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [modelo_id] como parametro",
@@ -60,7 +64,7 @@ export class ModeloController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Modelo | null = await Modelo.findOne({
+			const result: ModeloSend | null = await prisma.modelo.findUnique({
 				where: {
 					modelo_id: ID,
 				},
@@ -75,8 +79,6 @@ export class ModeloController {
 				},
 			};
 
-			console.log(respuestaJson);
-
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
@@ -87,7 +89,7 @@ export class ModeloController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Modelo> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ModeloSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -106,19 +108,22 @@ export class ModeloController {
 				fk_marca,
 				fk_categoria,
 			} = req.body;
-			const result: Modelo = await Modelo.create({
-				nombre,
-				descripcion,
-				foto,
-				caracteristicas,
-				color,
-				precio,
-				fecha_registro,
-				stock,
-				numero_series,
-				activo,
-				fk_marca,
-				fk_categoria,
+
+			const result = await prisma.modelo.create({
+				data: {
+					nombre,
+					descripcion,
+					foto,
+					caracteristicas,
+					color,
+					precio,
+					fecha_registro,
+					stock,
+					numero_series,
+					activo,
+					fk_marca,
+					fk_categoria,
+				},
 			});
 
 			respuestaJson = {
@@ -140,12 +145,25 @@ export class ModeloController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Modelo> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ModeloSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.modelo_id;
+			const ID = Number(req.query.modelo_id);
+
+			if (Number.isNaN(ID)) {
+				respuestaJson = {
+					code: 404,
+					data: null,
+					error: {
+						code: 0,
+						message: "no se envió la variable [modelo_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
 			const {
 				nombre,
 				descripcion,
@@ -161,8 +179,8 @@ export class ModeloController {
 				fk_categoria,
 			} = req.body;
 
-			await Modelo.update(
-				{
+			const result: ModeloSend = await prisma.modelo.update({
+				data: {
 					nombre,
 					descripcion,
 					foto,
@@ -176,20 +194,14 @@ export class ModeloController {
 					fk_marca,
 					fk_categoria,
 				},
-				{
-					where: {
-						modelo_id: ID,
-					},
-				}
-			);
-
-			const filaActualizada: Modelo | null = await Modelo.findOne({
-				// Condiciones para obtener el registro actualizado
-				where: { modelo_id: ID },
+				where: {
+					modelo_id: ID,
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
-				data: filaActualizada,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -206,18 +218,18 @@ export class ModeloController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ModeloSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.modelo_id;
+			const ID = Number(req.query.modelo_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [modelo_id] como parametro",
@@ -226,7 +238,7 @@ export class ModeloController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Modelo.destroy({
+			const result = await prisma.modelo.delete({
 				where: {
 					modelo_id: ID,
 				},
@@ -234,7 +246,7 @@ export class ModeloController {
 
 			respuestaJson = {
 				code: codigo,
-				data: {},
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -252,31 +264,32 @@ export class ModeloController {
 
 	static async listarModelosPorFiltro(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<modeloFiltroInterface[]> =
+		let respuestaJson: RespuestaEntity<ModeloPorFiltroSend[]> =
 			new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const categoria_id = req.query.categoria_id;
-			const nombre_modelo = req.query.nombre_modelo;
+			let _categoria_id = Number(req.query.categoria_id);
+			let _nombre_modelo = String(req.query.nombre_modelo);
 
-			if (categoria_id === undefined) {
+			if (Number.isNaN(_categoria_id)) {
 				respuestaJson = {
 					code: 404,
-					data: [],
+					data: null,
 					error: {
 						code: 0,
-						message: "no se envió la variable [categoria_id] como parametro",
+						message: "no se envió la variable [modelo_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
-			if (nombre_modelo === undefined) {
+
+			if (_nombre_modelo === undefined) {
 				respuestaJson = {
 					code: 404,
-					data: [],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [nombre_modelo] como parametro",
@@ -285,39 +298,39 @@ export class ModeloController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			let arrayProductos: modeloFiltroInterface[] = [];
+			const _case_where =
+				_categoria_id === 0 ? {} : { categoria_id: _categoria_id };
 
-			const resultado = await sequelize.query(
-				"exec sp_modelos_por_filtro_listar @fk_categoria= ?, @nombre_modelo= ?",
-				{
-					replacements: [categoria_id, nombre_modelo],
-					type: QueryTypes.SELECT,
-				}
-			);
-
-			resultado.forEach((element: any) => {
-				const item: modeloFiltroInterface = {
-					modelo: {
-						modelo_id: element.modelo_id as number,
-						nombre: "",
-						descripcion: element.modelo_descripcion as string,
-						caracteristicas: "",
-						precio: element.modelo_precio as number,
-						foto: element.modelo_foto as string,
-						color: "",
-						stock: 0,
+			const result: ModeloPorFiltroSend[] = await prisma.modelo.findMany({
+				select: {
+					modelo_id: true,
+					nombre: true,
+					descripcion: true,
+					caracteristicas: true,
+					precio: true,
+					color: true,
+					foto: true,
+					stock: true,
+					cls_marca: {
+						select: {
+							marca_id: true,
+							nombre: true,
+						},
 					},
-					marca: {
-						marca_id: element.marca_id as number,
-						nombre: element.marca_nombre as string,
+				},
+				where: {
+					descripcion: {
+						contains: _nombre_modelo,
 					},
-				};
-				arrayProductos.push(item);
+					cls_marca: {
+						cls_categoria: _case_where,
+					},
+				},
 			});
 
 			respuestaJson = {
 				code: codigo,
-				data: arrayProductos,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -334,19 +347,19 @@ export class ModeloController {
 	}
 	static async listaModeloDescripcion(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<modeloFiltroInterface[]> =
+		let respuestaJson: RespuestaEntity<ModeloDescripcionSend> =
 			new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const modelo_id = req.query.modelo_id;
+			const _modelo_id = Number(req.query.modelo_id);
 
-			if (modelo_id === undefined) {
+			if (Number.isNaN(_modelo_id)) {
 				respuestaJson = {
 					code: 404,
-					data: [],
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [modelo_id] como parametro",
@@ -355,43 +368,37 @@ export class ModeloController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			let arrayModelos: modeloFiltroInterface[] = [];
-
-			const resultado = await sequelize.query(
-				"exec sp_modelos_descripcion @modelo_id= ?",
-				{
-					replacements: [modelo_id],
-					type: QueryTypes.SELECT,
-				}
-			);
-
-			resultado.forEach((element: any) => {
-				const item: modeloDescripcionProps = {
-					categoria: {
-						categoria_id: element.modelo_id as number,
-						nombre: element.categoria_nombre as string,
+			const result: ModeloDescripcionSend | null = await prisma.modelo.findUnique({
+				select: {
+					modelo_id: true,
+					nombre: true,
+					descripcion: true,
+					caracteristicas: true,
+					precio: true,
+					foto: true,
+					color: true,
+					stock: true,
+					cls_marca: {
+						select: {
+							marca_id: true,
+							nombre: true,
+							cls_categoria: {
+								select: {
+									categoria_id: true,
+									nombre: true,
+								},
+							},
+						},
 					},
-					marca: {
-						marca_id: element.marca_id as number,
-						nombre: element.marca_nombre as string,
-					},
-					modelo: {
-						modelo_id: element.modelo_id as number,
-						nombre: element.modelo_nombre as string,
-						descripcion: element.modelo_descripcion as string,
-						caracteristicas: element.modelo_caracteristicas as string,
-						precio: element.modelo_precio as number,
-						foto: element.modelo_foto as string,
-						color: element.modelo_color as string,
-						stock: element.modelo_stock as number,
-					},
-				};
-				arrayModelos.push(item);
+				},
+				where: {
+					modelo_id: _modelo_id,
+				},
 			});
 
 			respuestaJson = {
 				code: codigo,
-				data: arrayModelos,
+				data: result,
 				error: {
 					code: 0,
 					message: "",

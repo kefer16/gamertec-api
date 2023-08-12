@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Sequelize } from "sequelize";
+import { PrismaClient } from "@prisma/client";
 
 export const sequelize = new Sequelize({
 	dialect: "mssql",
@@ -19,3 +20,5 @@ export const sequelize = new Sequelize({
 		timestamps: false,
 	},
 });
+
+export const prisma = new PrismaClient({ log: ["query", "info", "warn"] });

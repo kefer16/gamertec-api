@@ -4,18 +4,22 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Categoria } from "../models/categoria.models";
+import { prisma } from "../config/conexion";
+import { CategoriaSend } from "../interfaces/categoria.interface";
 
 export class CategoriaController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Categoria[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CategoriaSend[]> = new RespuestaEntity();
 		let codigo: number = 200;
+		await ApiEnvioController.grabarEnvioAPI(code_send, req);
 		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result = await Categoria.findAll({
-				order: [["fecha_registro", "DESC"]],
+			const result: CategoriaSend[] = await prisma.categoria.findMany({
+				orderBy: {
+					fecha_actualizacion: "desc",
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
 				data: result,
@@ -35,31 +39,44 @@ export class CategoriaController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Categoria | {}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CategoriaSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.categoria_id;
+			const ID = Number(req.query.categoria_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
+				codigo = 404;
 				respuestaJson = {
-					code: 404,
-					data: {},
+					code: codigo,
+					data: null,
 					error: {
-						code: 0,
+						code: 404,
 						message: "no se envió la variable [categoria_id] como parametro",
 					},
 				};
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Categoria | null = await Categoria.findOne({
+			const result: CategoriaSend | null = await prisma.categoria.findUnique({
 				where: {
 					categoria_id: ID,
 				},
 			});
+
+			if (!result) {
+				respuestaJson = {
+					code: codigo,
+					data: null,
+					error: {
+						code: 404,
+						message: `No se encontró la categoria con el ID: ${ID}`,
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
 
 			respuestaJson = {
 				code: codigo,
@@ -69,8 +86,6 @@ export class CategoriaController {
 					message: "",
 				},
 			};
-
-			console.log(respuestaJson);
 
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
@@ -82,17 +97,20 @@ export class CategoriaController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Categoria> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CategoriaSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
 			const { nombre, activo, fecha_registro, fecha_actualizacion } = req.body;
-			const result: Categoria = await Categoria.create({
-				nombre,
-				activo,
-				fecha_registro,
-				fecha_actualizacion,
+
+			const result: CategoriaSend = await prisma.categoria.create({
+				data: {
+					nombre,
+					activo,
+					fecha_registro,
+					fecha_actualizacion,
+				},
 			});
 
 			respuestaJson = {
@@ -114,35 +132,43 @@ export class CategoriaController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Categoria> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CategoriaSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.categoria_id;
+			const ID = Number(req.query.categoria_id);
+
+			if (Number.isNaN(ID)) {
+				codigo = 404;
+				respuestaJson = {
+					code: codigo,
+					data: null,
+					error: {
+						code: 404,
+						message: "no se envió la variable [categoria_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
 			const { nombre, activo, fecha_registro, fecha_actualizacion } = req.body;
 
-			await Categoria.update(
-				{
+			const result: CategoriaSend = await prisma.categoria.update({
+				data: {
 					nombre,
 					activo,
 					fecha_registro,
 					fecha_actualizacion,
 				},
-				{
-					where: {
-						categoria_id: ID,
-					},
-				}
-			);
-
-			const filaActaulizada: Categoria | null = await Categoria.findOne({
-				// Condiciones para obtener el registro actualizado
-				where: { categoria_id: ID },
+				where: {
+					categoria_id: ID,
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
-				data: filaActaulizada,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -158,18 +184,19 @@ export class CategoriaController {
 	}
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<CategoriaSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.categoria_id;
+			const ID = Number(req.query.categoria_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
+				codigo = 400;
 				respuestaJson = {
-					code: 404,
-					data: [{}],
+					code: codigo,
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [categoria_id] como parametro",
@@ -178,7 +205,26 @@ export class CategoriaController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Categoria.destroy({
+			const result1: CategoriaSend | null = await prisma.categoria.findUnique({
+				where: {
+					categoria_id: ID,
+				},
+			});
+
+			if (!result1) {
+				codigo = 404;
+				respuestaJson = {
+					code: codigo,
+					data: null,
+					error: {
+						code: 0,
+						message: `no se encontró categoria con el ID: ${ID}`,
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
+			const result = await prisma.categoria.delete({
 				where: {
 					categoria_id: ID,
 				},
@@ -186,10 +232,10 @@ export class CategoriaController {
 
 			respuestaJson = {
 				code: codigo,
-				data: {},
+				data: result,
 				error: {
 					code: 0,
-					message: "",
+					message: "exitoso",
 				},
 			};
 
