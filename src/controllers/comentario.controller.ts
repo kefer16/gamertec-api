@@ -4,17 +4,21 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Comentario } from "../models/comentario.models";
+import { prisma } from "../config/conexion";
+import { ComentarioSend } from "../interfaces/Comentario.interface";
 
 export class ComentarioController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Comentario[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ComentarioSend[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			const result: Comentario[] = await Comentario.findAll({
-				order: [["fecha_registro", "DESC"]],
+
+			const result: ComentarioSend[] = await prisma.comentario.findMany({
+				orderBy: {
+					fecha_registro: "desc",
+				},
 			});
 			respuestaJson = {
 				code: codigo,
@@ -35,18 +39,18 @@ export class ComentarioController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Comentario | {}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ComentarioSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = Number(req.query.comentario_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [comentario_id] como parametro",
@@ -55,7 +59,7 @@ export class ComentarioController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Comentario | null = await Comentario.findOne({
+			const result: ComentarioSend | null = await prisma.comentario.findUnique({
 				where: {
 					comentario_id: ID,
 				},
@@ -70,8 +74,6 @@ export class ComentarioController {
 				},
 			};
 
-			console.log(respuestaJson);
-
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
@@ -82,7 +84,7 @@ export class ComentarioController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Comentario> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ComentarioSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
@@ -97,15 +99,18 @@ export class ComentarioController {
 				fk_usuario,
 				fk_modelo,
 			} = req.body;
-			const result: Comentario = await Comentario.create({
-				valoracion,
-				usuario,
-				titulo,
-				mensaje,
-				fecha_registro,
-				activo,
-				fk_usuario,
-				fk_modelo,
+
+			const result: ComentarioSend = await prisma.comentario.create({
+				data: {
+					valoracion,
+					usuario,
+					titulo,
+					mensaje,
+					fecha_registro,
+					activo,
+					fk_usuario,
+					fk_modelo,
+				},
 			});
 
 			respuestaJson = {
@@ -127,12 +132,24 @@ export class ComentarioController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Comentario> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ComentarioSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.comentario_id;
+			const ID = Number(req.query.comentario_id);
+
+			if (Number.isNaN(ID)) {
+				respuestaJson = {
+					code: 404,
+					data: null,
+					error: {
+						code: 0,
+						message: "no se envió la variable [comentario_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
 			const {
 				valoracion,
 				usuario,
@@ -144,8 +161,8 @@ export class ComentarioController {
 				fk_modelo,
 			} = req.body;
 
-			await Comentario.update(
-				{
+			const result = await prisma.comentario.update({
+				data: {
 					valoracion,
 					usuario,
 					titulo,
@@ -155,20 +172,13 @@ export class ComentarioController {
 					fk_usuario,
 					fk_modelo,
 				},
-				{
-					where: {
-						comentario_id: ID,
-					},
-				}
-			);
-
-			const filaActualizada: Comentario | null = await Comentario.findOne({
-				// Condiciones para obtener el registro actualizado
-				where: { comentario_id: ID },
+				where: {
+					comentario_id: ID,
+				},
 			});
 			respuestaJson = {
 				code: codigo,
-				data: filaActualizada,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -190,12 +200,12 @@ export class ComentarioController {
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.comentario_id;
+			const ID = Number(req.query.comentario_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [comentario_id] como parametro",
@@ -204,7 +214,7 @@ export class ComentarioController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Comentario.destroy({
+			const result = await prisma.comentario.delete({
 				where: {
 					comentario_id: ID,
 				},
@@ -212,7 +222,7 @@ export class ComentarioController {
 
 			respuestaJson = {
 				code: codigo,
-				data: {},
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -230,15 +240,15 @@ export class ComentarioController {
 
 	static async buscarPorModelo(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Comentario[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<ComentarioSend[]> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.modelo_id;
+			const ID = Number(req.query.modelo_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
 					data: [],
@@ -250,11 +260,13 @@ export class ComentarioController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result = await Comentario.findAll({
+			const result = await prisma.comentario.findMany({
 				where: {
 					fk_modelo: ID,
 				},
-				order: [["fecha_registro", "DESC"]],
+				orderBy: {
+					fecha_registro: "desc",
+				},
 			});
 
 			respuestaJson = {
