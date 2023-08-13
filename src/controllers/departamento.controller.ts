@@ -4,19 +4,20 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Departamento } from "../models/departamento.models";
-import { Op } from "sequelize";
+import { prisma } from "../config/conexion";
+import { DepartamentoSend } from "../interfaces/departamento.interface";
 
 export class DepartamentoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Departamento[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DepartamentoSend[]> =
+			new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await Departamento.findAll({
-				where: { activo: { [Op.eq]: 1 } },
+			const result = await prisma.departamento.findMany({
+				where: { activo: true },
 			});
 			respuestaJson = {
 				code: codigo,
@@ -37,18 +38,18 @@ export class DepartamentoController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Departamento | {}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.departamento_id;
+			const ID = Number(req.query.departamento_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [departamento_id] como parametro",
@@ -57,11 +58,13 @@ export class DepartamentoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Departamento | null = await Departamento.findOne({
-				where: {
-					departamento_id: ID,
-				},
-			});
+			const result: DepartamentoSend | null = await prisma.departamento.findUnique(
+				{
+					where: {
+						departamento_id: ID,
+					},
+				}
+			);
 
 			respuestaJson = {
 				code: codigo,
@@ -82,16 +85,20 @@ export class DepartamentoController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Departamento> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { nombre, costo_envio, activo } = req.body;
-			const result: Departamento = await Departamento.create({
-				nombre,
-				costo_envio,
-				activo,
+			const { departamento_id, nombre, costo_envio, activo } = req.body;
+
+			const result = await prisma.departamento.create({
+				data: {
+					departamento_id,
+					nombre,
+					costo_envio,
+					activo,
+				},
 			});
 
 			respuestaJson = {
@@ -113,34 +120,42 @@ export class DepartamentoController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Departamento> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.departamento_id;
+			const ID = Number(req.query.departamento_id);
+
+			if (Number.isNaN(ID)) {
+				respuestaJson = {
+					code: 404,
+					data: null,
+					error: {
+						code: 0,
+						message: "no se envió la variable [departamento_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
 			const { nombre, costo_envio, activo } = req.body;
 
-			await Departamento.update(
-				{
+			const result: DepartamentoSend = await prisma.departamento.update({
+				data: {
 					nombre,
 					costo_envio,
 					activo,
 				},
-				{
-					where: {
-						departamento_id: ID,
-					},
-				}
-			);
 
-			const filaActualizada: Departamento | null = await Departamento.findOne({
-				// Condiciones para obtener el registro actualizado
-				where: { departamento_id: ID },
+				where: {
+					departamento_id: ID,
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
-				data: filaActualizada,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -157,18 +172,18 @@ export class DepartamentoController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.departamento_id;
+			const ID = Number(req.query.departamento_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [departamento_id] como parametro",
@@ -177,7 +192,7 @@ export class DepartamentoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Departamento.destroy({
+			const result = await prisma.departamento.delete({
 				where: {
 					departamento_id: ID,
 				},
@@ -185,7 +200,7 @@ export class DepartamentoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: {},
+				data: result,
 				error: {
 					code: 0,
 					message: "",
