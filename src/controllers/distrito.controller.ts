@@ -4,20 +4,21 @@ import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "./error.controlller";
 import { ApiEnvioController } from "./apienvio.controller";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { Op } from "sequelize";
-import { Distrito } from "../models/distrito.models";
+import { prisma } from "../config/conexion";
+import { DistritoSend } from "../interfaces/distrito.interface";
 
 export class DistritoController {
 	static async listarTodos(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Distrito[]> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DistritoSend[]> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const result = await Distrito.findAll({
-				where: { activo: { [Op.eq]: 1 } },
+			const result = await prisma.distrito.findMany({
+				where: { activo: true },
 			});
+
 			respuestaJson = {
 				code: codigo,
 				data: result,
@@ -37,18 +38,18 @@ export class DistritoController {
 
 	static async listarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Distrito | {}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.distrito_id;
+			const ID = Number(req.query.distrito_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [distrito_id] como parametro",
@@ -57,7 +58,7 @@ export class DistritoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			const result: Distrito | null = await Distrito.findOne({
+			const result: DistritoSend | null = await prisma.distrito.findUnique({
 				where: {
 					distrito_id: ID,
 				},
@@ -72,8 +73,6 @@ export class DistritoController {
 				},
 			};
 
-			console.log(respuestaJson);
-
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
@@ -84,17 +83,22 @@ export class DistritoController {
 	}
 	static async registrar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Distrito> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const { nombre, activo, fk_provincia, fk_departamento } = req.body;
-			const result: Distrito = await Distrito.create({
-				nombre,
-				activo,
-				fk_provincia,
-				fk_departamento,
+			const { distrito_id, nombre, activo, fk_provincia, fk_departamento } =
+				req.body;
+
+			const result: DistritoSend = await prisma.distrito.create({
+				data: {
+					distrito_id,
+					nombre,
+					activo,
+					fk_provincia,
+					fk_departamento,
+				},
 			});
 
 			respuestaJson = {
@@ -116,35 +120,42 @@ export class DistritoController {
 
 	static async actualizar(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<Distrito> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 			// await sequelize.authenticate();
-			const ID = req.query.distrito_id;
+			const ID = Number(req.query.distrito_id);
+
+			if (Number.isNaN(ID)) {
+				respuestaJson = {
+					code: 404,
+					data: null,
+					error: {
+						code: 0,
+						message: "no se envió la variable [distrito_id] como parametro",
+					},
+				};
+				return res.status(codigo).json(respuestaJson);
+			}
+
 			const { nombre, activo, fk_provincia, fk_departamento } = req.body;
 
-			await Distrito.update(
-				{
+			const result: DistritoSend = await prisma.distrito.update({
+				data: {
 					nombre,
 					activo,
 					fk_provincia,
 					fk_departamento,
 				},
-				{
-					where: {
-						distrito_id: ID,
-					},
-				}
-			);
-
-			const filaActualizada: Distrito | null = await Distrito.findOne({
-				// Condiciones para obtener el registro actualizado
-				where: { distrito_id: ID },
+				where: {
+					distrito_id: ID,
+				},
 			});
+
 			respuestaJson = {
 				code: codigo,
-				data: filaActualizada,
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -161,18 +172,18 @@ export class DistritoController {
 
 	static async eliminarUno(req: Request, res: Response) {
 		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<{}> = new RespuestaEntity();
+		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
 		let codigo: number = 200;
 
 		try {
 			await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-			const ID = req.query.distrito_id;
+			const ID = Number(req.query.distrito_id);
 
-			if (ID === undefined) {
+			if (Number.isNaN(ID)) {
 				respuestaJson = {
 					code: 404,
-					data: {},
+					data: null,
 					error: {
 						code: 0,
 						message: "no se envió la variable [distrito_id] como parametro",
@@ -181,7 +192,7 @@ export class DistritoController {
 				return res.status(codigo).json(respuestaJson);
 			}
 
-			await Distrito.destroy({
+			const result = await prisma.distrito.delete({
 				where: {
 					distrito_id: ID,
 				},
@@ -189,7 +200,7 @@ export class DistritoController {
 
 			respuestaJson = {
 				code: codigo,
-				data: {},
+				data: result,
 				error: {
 					code: 0,
 					message: "",
@@ -199,7 +210,7 @@ export class DistritoController {
 			res.status(codigo).json(respuestaJson);
 		} catch (error: any) {
 			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
+			await ErrorController.grabarError(codigo, error, res);
 		} finally {
 			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
 		}
