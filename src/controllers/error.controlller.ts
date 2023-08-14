@@ -13,16 +13,6 @@ export class ErrorController {
 		const respuestaJson: RespuestaEntity<{}> = {} as RespuestaEntity<{}>;
 
 		try {
-			// await ErrorModel.create({
-			// 	codigo: error.parent === undefined ? 0 : error.parent.number,
-			// 	linea: error.parent === undefined ? 0 : error.parent.lineNumber,
-			// 	objeto: obtenerArchivoError(error),
-			// 	mensaje: error.message,
-			// 	servidor: error.parent === undefined ? "" : error.parent.serverName,
-			// 	fecha_registro: obtenerFechaLocal(),
-			// 	fk_usuario: 1,
-			// });
-
 			await prisma.error.create({
 				data: {
 					codigo: error.parent === undefined ? 0 : error.parent.number,
@@ -43,16 +33,6 @@ export class ErrorController {
 
 	static async grabarSoloError(error: any) {
 		try {
-			// await ErrorModel.create({
-			// 	codigo: error.parent === undefined ? 0 : error.parent.number,
-			// 	linea: error.parent.lineNumber,
-			// 	objeto: obtenerArchivoError(error),
-			// 	mensaje: error.message,
-			// 	servidor: error.parent.serverName,
-			// 	fecha_registro: obtenerFechaLocal(),
-			// 	fk_usuario: 1,
-			// });
-
 			await prisma.error.create({
 				data: {
 					codigo: error.parent === undefined ? 0 : error.parent.number,
@@ -80,16 +60,6 @@ export class ErrorController {
 		};
 
 		try {
-			// await ErrorModel.create({
-			// 	codigo: 0,
-			// 	linea: _error.parent.lineNumber,
-			// 	objeto: _error.parent.procName,
-			// 	mensaje: _error.message,
-			// 	servidor: _error.parent.serverName,
-			// 	fecha_registro: obtenerFechaLocal(),
-			// 	fk_usuario: 1,
-			// });
-
 			await prisma.error.create({
 				data: {
 					codigo: 0,

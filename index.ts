@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import * as fs from "fs";
 import swaggerUi from "swagger-ui-express";
-import { sequelize } from "./src/config/conexion";
 import { usuarioRoutes } from "./src/routes/usuario.routes";
 import { autenticacionRoutes } from "./src/routes/autentication.routes";
 import { privilegioRoutes } from "./src/routes/privilegio.router";
@@ -73,12 +72,6 @@ app.use("/token", autenticacionRoutes);
 // 	return res.json({ message: "Authenticated" });
 // });
 
-sequelize
-	.authenticate()
-	.then(() => {
-		console.log("Connected to database");
-		app.listen(port, () =>
-			console.log(`Server running on port ${port} + ${process.env.API_HOST}`)
-		);
-	})
-	.catch((error) => console.log(error));
+app.listen(port, () =>
+	console.log(`Server running on port ${port} + ${process.env.API_HOST}`)
+);

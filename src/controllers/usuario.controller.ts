@@ -1,67 +1,30 @@
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
-import { ErrorController } from "./error.controlller";
-import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entities/respuesta.entity";
 import {
 	UsuarioHistorialSend,
 	UsuarioSend,
 } from "../interfaces/usuario.interface";
 import { prisma } from "../config/conexion";
+import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class UsuarioController {
 	static async listarTodos(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioSend[]> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+		type tipo = UsuarioSend[];
 
-			const result = await prisma.usuario.findMany({
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const result: tipo = await prisma.usuario.findMany({
 				orderBy: { fecha_registro: "desc" },
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			console.log(error);
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-			prisma.$disconnect;
-		}
+			return result;
+		});
 	}
 
 	static async listarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioSend | null> =
-			new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = UsuarioSend | null;
 
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID: number = Number(req.query.usuario_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
 			const result: UsuarioSend | null = await prisma.usuario.findUnique({
 				include: {
 					privilegio: {
@@ -73,31 +36,13 @@ export class UsuarioController {
 				},
 				where: { usuario_id: ID },
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 	static async registrar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = UsuarioSend;
 
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const {
 				nombre,
 				apellido,
@@ -112,7 +57,7 @@ export class UsuarioController {
 				telefono,
 			} = req.body;
 
-			const result = await prisma.usuario.create({
+			const result: tipo = await prisma.usuario.create({
 				data: {
 					nombre: nombre,
 					apellido: apellido,
@@ -129,44 +74,15 @@ export class UsuarioController {
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async actualizar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = UsuarioSend;
 
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID: number = Number(req.query.usuario_id);
-
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
 
 			const {
 				nombre,
@@ -182,7 +98,7 @@ export class UsuarioController {
 				telefono,
 			} = req.body;
 
-			const result = await prisma.usuario.update({
+			const result: tipo = await prisma.usuario.update({
 				data: {
 					nombre: nombre,
 					apellido: apellido,
@@ -199,159 +115,58 @@ export class UsuarioController {
 				where: { usuario_id: ID },
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async login(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+		type tipo = UsuarioSend | null;
 
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const { usuario, contrasenia } = req.body;
 
-			const usuarioLogeado: UsuarioSend | null = await prisma.usuario.findUnique({
+			const result: tipo = await prisma.usuario.findUnique({
 				where: {
 					usuario: usuario,
 					contrasenia: contrasenia,
 				},
 			});
 
-			if (!usuarioLogeado) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "usuario o contrasenia incorrecta",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			respuestaJson = {
-				code: codigo,
-				data: usuarioLogeado,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async historial(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<UsuarioHistorialSend[]> =
-			new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+		type tipo = UsuarioHistorialSend[];
 
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.usuario_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: [],
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result: UsuarioHistorialSend[] =
-				await prisma.usuario_historial.findMany({
-					where: {
-						usuario_id: ID,
-					},
-					orderBy: {
-						fecha_final: "desc",
-					},
-				});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
+			const result: tipo = await prisma.usuario_historial.findMany({
+				where: {
+					usuario_id: ID,
 				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+				orderBy: {
+					fecha_final: "desc",
+				},
+			});
+
+			return result;
+		});
 	}
 
 	static async eliminarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<null> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = UsuarioSend;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.usuario_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-			await prisma.usuario.delete({
+			const result: tipo = await prisma.usuario.delete({
 				where: {
 					usuario_id: ID,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: null,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 }

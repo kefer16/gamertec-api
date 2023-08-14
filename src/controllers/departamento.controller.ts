@@ -1,62 +1,25 @@
 import { Request, Response } from "express";
-
-import { v4 as uuidv4 } from "uuid";
-import { ErrorController } from "./error.controlller";
-import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entities/respuesta.entity";
 import { prisma } from "../config/conexion";
 import { DepartamentoSend } from "../interfaces/departamento.interface";
+import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class DepartamentoController {
 	static async listarTodos(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DepartamentoSend[]> =
-			new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-			const result = await prisma.departamento.findMany({
+		type tipo = DepartamentoSend[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const result: tipo = await prisma.departamento.findMany({
 				where: { activo: true },
 			});
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async listarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = DepartamentoSend | null;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.departamento_id);
-
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [departamento_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
 
 			const result: DepartamentoSend | null = await prisma.departamento.findUnique(
 				{
@@ -65,34 +28,17 @@ export class DepartamentoController {
 					},
 				}
 			);
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
+
 	static async registrar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = DepartamentoSend;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const { departamento_id, nombre, costo_envio, activo } = req.body;
 
-			const result = await prisma.departamento.create({
+			const result: tipo = await prisma.departamento.create({
 				data: {
 					departamento_id,
 					nombre,
@@ -100,48 +46,19 @@ export class DepartamentoController {
 					activo,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async actualizar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-			const ID = Number(req.query.departamento_id);
+		type tipo = DepartamentoSend;
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [departamento_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.departamento_id);
 
 			const { nombre, costo_envio, activo } = req.body;
 
-			const result: DepartamentoSend = await prisma.departamento.update({
+			const result: tipo = await prisma.departamento.update({
 				data: {
 					nombre,
 					costo_envio,
@@ -152,67 +69,22 @@ export class DepartamentoController {
 					departamento_id: ID,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async eliminarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DepartamentoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = DepartamentoSend;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.departamento_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [departamento_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result = await prisma.departamento.delete({
+			const result: tipo = await prisma.departamento.delete({
 				where: {
 					departamento_id: ID,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 }

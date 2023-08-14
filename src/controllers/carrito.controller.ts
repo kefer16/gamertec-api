@@ -1,98 +1,43 @@
 import { Request, Response } from "express";
-
-import { v4 as uuidv4 } from "uuid";
-import { ErrorController } from "./error.controlller";
-import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entities/respuesta.entity";
 import {
 	CarritoSend,
 	CarritoUsuarioSend,
 } from "../interfaces/carrito.interface";
 import { prisma } from "../config/conexion";
+import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class CarritoController {
 	static async listarTodos(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoSend[]> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
+		type tipo = CarritoSend[];
 
-			const result = await prisma.carrito.findMany({
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const result: tipo = await prisma.carrito.findMany({
 				orderBy: {
 					fecha_registro: "desc",
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async listarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = CarritoSend | null;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.carrito_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [carrito_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result: CarritoSend | null = await prisma.carrito.findUnique({
+			const result: tipo = await prisma.carrito.findUnique({
 				where: {
 					carrito_id: ID,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 	static async registrar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = CarritoSend;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const {
 				cantidad,
 				precio_total,
@@ -104,7 +49,7 @@ export class CarritoController {
 				fk_modelo,
 			} = req.body;
 
-			const result: CarritoSend = await prisma.carrito.create({
+			const result: tipo = await prisma.carrito.create({
 				data: {
 					cantidad,
 					precio_total,
@@ -117,30 +62,14 @@ export class CarritoController {
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async actualizar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = CarritoSend;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.carrito_id);
 			const {
 				cantidad,
@@ -153,7 +82,7 @@ export class CarritoController {
 				fk_modelo,
 			} = req.body;
 
-			const result: CarritoSend = await prisma.carrito.update({
+			const result: tipo = await prisma.carrito.update({
 				data: {
 					cantidad,
 					precio_total,
@@ -168,92 +97,32 @@ export class CarritoController {
 					carrito_id: ID,
 				},
 			});
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+
+			return result;
+		});
 	}
 	static async eliminarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = CarritoSend;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.carrito_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [carrito_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result = await prisma.carrito.delete({
+			const result: tipo = await prisma.carrito.delete({
 				where: {
 					carrito_id: ID,
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async obtenerCarritoPorUsuario(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<CarritoUsuarioSend[]> =
-			new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = CarritoUsuarioSend[];
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.usuario_id);
-
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: [],
-					error: {
-						code: 0,
-						message: "no se envió la variable [usuario_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result: CarritoUsuarioSend[] = await prisma.carrito.findMany({
+			const result: tipo = await prisma.carrito.findMany({
 				select: {
 					carrito_id: true,
 					cantidad: true,
@@ -282,22 +151,7 @@ export class CarritoController {
 					fk_usuario: ID,
 				},
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 }

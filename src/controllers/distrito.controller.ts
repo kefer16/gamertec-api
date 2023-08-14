@@ -1,97 +1,44 @@
 import { Request, Response } from "express";
-
-import { v4 as uuidv4 } from "uuid";
-import { ErrorController } from "./error.controlller";
-import { ApiEnvioController } from "./apienvio.controller";
-import { RespuestaEntity } from "../entities/respuesta.entity";
 import { prisma } from "../config/conexion";
 import { DistritoSend } from "../interfaces/distrito.interface";
+import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class DistritoController {
 	static async listarTodos(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DistritoSend[]> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-			const result = await prisma.distrito.findMany({
+		type tipo = DistritoSend[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const result: tipo = await prisma.distrito.findMany({
 				where: { activo: true },
 			});
-
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async listarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = DistritoSend | null;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.distrito_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [distrito_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result: DistritoSend | null = await prisma.distrito.findUnique({
+			const result: tipo = await prisma.distrito.findUnique({
 				where: {
 					distrito_id: ID,
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
+
 	static async registrar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
+		type tipo = DistritoSend;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const { distrito_id, nombre, activo, fk_provincia, fk_departamento } =
 				req.body;
 
-			const result: DistritoSend = await prisma.distrito.create({
+			const result: tipo = await prisma.distrito.create({
 				data: {
 					distrito_id,
 					nombre,
@@ -101,47 +48,19 @@ export class DistritoController {
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async actualizar(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-			// await sequelize.authenticate();
-			const ID = Number(req.query.distrito_id);
+		type tipo = DistritoSend;
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [distrito_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.distrito_id);
 
 			const { nombre, activo, fk_provincia, fk_departamento } = req.body;
 
-			const result: DistritoSend = await prisma.distrito.update({
+			const result: tipo = await prisma.distrito.update({
 				data: {
 					nombre,
 					activo,
@@ -153,66 +72,23 @@ export class DistritoController {
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 
 	static async eliminarUno(req: Request, res: Response) {
-		const code_send = uuidv4();
-		let respuestaJson: RespuestaEntity<DistritoSend> = new RespuestaEntity();
-		let codigo: number = 200;
+		type tipo = DistritoSend;
 
-		try {
-			await ApiEnvioController.grabarEnvioAPI(code_send, req);
-
+		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.distrito_id);
 
-			if (Number.isNaN(ID)) {
-				respuestaJson = {
-					code: 404,
-					data: null,
-					error: {
-						code: 0,
-						message: "no se envió la variable [distrito_id] como parametro",
-					},
-				};
-				return res.status(codigo).json(respuestaJson);
-			}
-
-			const result = await prisma.distrito.delete({
+			const result: tipo = await prisma.distrito.delete({
 				where: {
 					distrito_id: ID,
 				},
 			});
 
-			respuestaJson = {
-				code: codigo,
-				data: result,
-				error: {
-					code: 0,
-					message: "",
-				},
-			};
-
-			res.status(codigo).json(respuestaJson);
-		} catch (error: any) {
-			codigo = 500;
-			await ErrorController.grabarError(codigo, error, res);
-		} finally {
-			await ApiEnvioController.grabarRespuestaAPI(code_send, respuestaJson, res);
-		}
+			return result;
+		});
 	}
 }

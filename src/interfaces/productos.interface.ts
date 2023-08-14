@@ -6,7 +6,7 @@ export interface modeloFiltroInterface {
 	marca: MarcaModel;
 }
 
-export interface PorductoSend {
+export interface ProductoSend {
 	producto_id: number;
 	numero_serie: string;
 	activo: boolean;
