@@ -16,6 +16,19 @@ export interface UsuarioSend {
 	telefono: string;
 }
 
+export interface UsuarioLoginSend {
+	usuario_id: number;
+	nombre: string;
+	apellido: string;
+	correo: string;
+	usuario: string;
+	dinero: number;
+	foto: string;
+	activo: boolean;
+	fk_privilegio: number;
+	direccion: string;
+	telefono: string;
+}
 export interface UsuarioHistorialSend {
 	usuario_id: number;
 	nombre: string;

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/conexion";
-import { ComentarioSend } from "../interfaces/Comentario.interface";
+
 import { ejecutarOperacion } from "../utils/funciones.utils";
+import { ComentarioSend } from "../interfaces/comentario.interface";
 
 export class ComentarioController {
 	static async listarTodos(req: Request, res: Response) {

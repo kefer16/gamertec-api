@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
 	UsuarioHistorialSend,
+	UsuarioLoginSend,
 	UsuarioSend,
 } from "../interfaces/usuario.interface";
 import { prisma } from "../config/conexion";
@@ -120,12 +121,25 @@ export class UsuarioController {
 	}
 
 	static async login(req: Request, res: Response) {
-		type tipo = UsuarioSend | null;
+		type tipo = UsuarioLoginSend | null;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const { usuario, contrasenia } = req.body;
 
 			const result: tipo = await prisma.usuario.findUnique({
+				select: {
+					usuario_id: true,
+					nombre: true,
+					apellido: true,
+					correo: true,
+					usuario: true,
+					dinero: true,
+					foto: true,
+					activo: true,
+					fk_privilegio: true,
+					direccion: true,
+					telefono: true,
+				},
 				where: {
 					usuario: usuario,
 					contrasenia: contrasenia,

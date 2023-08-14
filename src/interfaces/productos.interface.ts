@@ -1,11 +1,3 @@
-import { MarcaModel } from "../models/marca.models";
-import { ModeloModel } from "../models/modelo.models";
-
-export interface modeloFiltroInterface {
-	modelo: ModeloModel;
-	marca: MarcaModel;
-}
-
 export interface ProductoSend {
 	producto_id: number;
 	numero_serie: string;
