@@ -2,18 +2,16 @@ import { Request, Response } from "express";
 import { prisma } from "../config/conexion";
 import {
 	PedidoCabeceraListarUnoSend,
-	PedidoCabeceraSend,
+	IPedidoCabecera,
 	PedidoCabeceraUsuarioSend,
+	IActualizaSerie,
+	IPedidoDetalleProductoId,
 } from "../interfaces/pedido_cabecera.interface";
-import {
-	PedidoDetalleSend,
-	PedidoDetalleSinIdModel,
-} from "../interfaces/pedido_detalle.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class PedidoController {
 	static async listarTodos(req: Request, res: Response) {
-		type tipo = PedidoCabeceraSend[];
+		type tipo = IPedidoCabecera[];
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const result: tipo = await prisma.pedido_cabecera.findMany({
@@ -73,7 +71,7 @@ export class PedidoController {
 	}
 
 	static async listarUltimo(req: Request, res: Response) {
-		type tipo = PedidoCabeceraSend | null;
+		type tipo = IPedidoCabecera | null;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const result: tipo = await prisma.pedido_cabecera.findFirst({
@@ -90,50 +88,23 @@ export class PedidoController {
 		type tipo = boolean;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			await prisma.$transaction(async (prisma) => {
-				const pedido_cabecera: PedidoCabeceraSend = req.body.pedido_cabecera;
+			const usuario_id = Number(req.body.usuario_id);
+			const distrito_id = Number(req.body.distrito_id);
+			const fecha_registro = req.body.fecha_registro;
 
-				const result_cabecera = await prisma.pedido_cabecera.create({
-					data: pedido_cabecera,
-				});
+			// const query: string = ``;
+			// console.log(query);
 
-				let pedido_detalle: PedidoDetalleSend[] = req.body.array_pedido_detalle;
+			const result = prisma.$executeRaw`exec sp_registrar_pedido @usuario_id = ${usuario_id}, @distrito_id = ${distrito_id}, @fecha_registro = ${fecha_registro}`;
 
-				pedido_detalle = pedido_detalle.map((item: PedidoDetalleSinIdModel) => ({
-					...item,
-					fk_pedido_cabecera: Number(result_cabecera.pedido_cabecera_id),
-				}));
-
-				const result_detalle = await prisma.pedido_detalle.createMany({
-					data: pedido_detalle,
-				});
-
-				const resultCarrito = await prisma.carrito.updateMany({
-					where: {
-						pedido: {
-							equals: false,
-						},
-						activo: {
-							equals: true,
-						},
-						despues: {
-							equals: false,
-						},
-					},
-					data: {
-						pedido: true,
-					},
-				});
-
-				return { result_cabecera, result_detalle, resultCarrito };
-			});
+			await prisma.$transaction([result]);
 
 			return true;
 		});
 	}
 
 	static async actualizar(req: Request, res: Response) {
-		type tipo = PedidoCabeceraSend;
+		type tipo = IPedidoCabecera;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID: number = Number(req.query.pedido_id);
@@ -205,7 +176,7 @@ export class PedidoController {
 		type tipo = PedidoCabeceraUsuarioSend[];
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			const usuario_id: number = Number(req.query.usuario_id);
+			// const usuario_id: number = Number(req.query.usuario_id);
 
 			const result: tipo = await prisma.pedido_cabecera.findMany({
 				select: {
@@ -237,12 +208,53 @@ export class PedidoController {
 					},
 				},
 				where: {
-					fk_usuario: usuario_id,
+					// fk_usuario: usuario_id,
 					activo: true,
 				},
 			});
 
 			return result;
+		});
+	}
+	static async agregarSeries(req: Request, res: Response) {
+		type tipo = number;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID: number = Number(req.query.pedido_detalle_id);
+
+			const series: IActualizaSerie[] = req.body;
+
+			const detalle: IPedidoDetalleProductoId[] =
+				await prisma.pedido_detalle_producto.findMany({
+					select: {
+						pedido_detalle_producto_id: true,
+					},
+					where: {
+						fk_pedido_detalle: ID,
+					},
+				});
+
+			const updatePromises: Promise<any>[] = [];
+			console.log("detalle", detalle);
+
+			let i = 0;
+			series.forEach((element: IActualizaSerie) => {
+				const updatePromise = prisma.pedido_detalle_producto.update({
+					data: {
+						numero_serie: element.numero_serie,
+						fk_producto: element.fk_producto,
+					},
+					where: {
+						pedido_detalle_producto_id: detalle[i].pedido_detalle_producto_id,
+					},
+				});
+				i = i + 1;
+				updatePromises.push(updatePromise);
+			});
+
+			await Promise.all(updatePromises);
+
+			return 1;
 		});
 	}
 }

@@ -10,5 +10,6 @@ router.put("/actualizar", PedidoController.actualizar);
 router.delete("/eliminar", PedidoController.eliminarUno);
 router.get("/ultimo", PedidoController.listarUltimo);
 router.get("/pedidos_usuario", PedidoController.listarPedidosUsuario);
+router.put("/agregar_series", PedidoController.agregarSeries);
 
 export { router as PedidoRoutes };

@@ -8,5 +8,6 @@ router.get("/uno", ProductoController.listarUno);
 router.post("/registrar", ProductoController.registrar);
 router.put("/actualizar", ProductoController.actualizar);
 router.delete("/eliminar", ProductoController.eliminarUno);
+router.get("/series", ProductoController.series);
 
 export { router as ProductoRoutes };

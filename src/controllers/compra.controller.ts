@@ -3,22 +3,21 @@ import { prisma } from "../config/conexion";
 import {
 	CompraCabeceraSend,
 	CompraDetalleSend,
-	CompraSend,
 	CompraUsuarioSend,
+	ICompraCard,
+	ICompraTable,
 } from "../interfaces/compra.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
 
 export class CompraController {
 	static async listarTodos(req: Request, res: Response) {
-		type tipo = CompraSend[];
+		type tipo = ICompraCard[];
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const result: tipo = await prisma.compra_cabecera.findMany({
 				select: {
 					compra_cabecera_id: true,
 					codigo: true,
-					direccion: true,
-					telefono: true,
 					sub_total: true,
 					costo_envio: true,
 					total: true,
@@ -26,14 +25,17 @@ export class CompraController {
 					activo: true,
 					lst_compra_detalle: {
 						select: {
-							compra_detalle_id: true,
-							item: true,
 							cantidad: true,
 							precio: true,
 							total: true,
-							serie: true,
 							fecha_registro: true,
 							activo: true,
+							cls_modelo: {
+								select: {
+									foto: true,
+									nombre: true,
+								},
+							},
 						},
 					},
 				},
@@ -46,7 +48,7 @@ export class CompraController {
 	}
 
 	static async listarUno(req: Request, res: Response) {
-		type tipo = CompraSend | null;
+		type tipo = ICompraTable | null;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID: number = Number(req.query.compra_cabecera_id);
@@ -69,9 +71,14 @@ export class CompraController {
 							cantidad: true,
 							precio: true,
 							total: true,
-							serie: true,
 							fecha_registro: true,
 							activo: true,
+							cls_modelo: {
+								select: {
+									foto: true,
+									nombre: true,
+								},
+							},
 						},
 					},
 				},
@@ -97,32 +104,20 @@ export class CompraController {
 	}
 
 	static async registrar(req: Request, res: Response) {
-		type tipo = boolean;
+		type tipo = number[];
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			await prisma.$transaction(async (prisma) => {
-				const compra_cabecera: CompraCabeceraSend = req.body.compra_cabecera;
+			const pedido_cabecera_id = Number(req.query.pedido_cabecera_id);
 
-				const result_cabecera: CompraCabeceraSend =
-					await prisma.compra_cabecera.create({
-						data: compra_cabecera,
-					});
+			console.log(req);
 
-				let compra_detalle: CompraDetalleSend[] = req.body.array_compra_detalle;
+			console.log(pedido_cabecera_id);
 
-				compra_detalle = compra_detalle.map((item: CompraDetalleSend) => ({
-					...item,
-					fk_compra_cabecera: Number(result_cabecera.compra_cabecera_id),
-				}));
+			const result = prisma.$executeRaw`exec sp_registrar_compra @pedido_cabecera_id = ${pedido_cabecera_id}`;
 
-				const result_detalle = await prisma.compra_detalle.createMany({
-					data: compra_detalle,
-				});
+			const result1 = await prisma.$transaction([result]);
 
-				return { result_cabecera, result_detalle };
-			});
-
-			return true;
+			return result1;
 		});
 	}
 

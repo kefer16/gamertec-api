@@ -35,14 +35,21 @@ export class DistritoController {
 		type tipo = DistritoSend;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			const { distrito_id, nombre, activo, fk_provincia, fk_departamento } =
-				req.body;
+			const {
+				distrito_id,
+				nombre,
+				activo,
+				costo_envio,
+				fk_provincia,
+				fk_departamento,
+			} = req.body;
 
 			const result: tipo = await prisma.distrito.create({
 				data: {
 					distrito_id,
 					nombre,
 					activo,
+					costo_envio,
 					fk_provincia,
 					fk_departamento,
 				},

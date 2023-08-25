@@ -149,6 +149,8 @@ export class CarritoController {
 				},
 				where: {
 					fk_usuario: ID,
+					activo: true,
+					pedido: false,
 				},
 			});
 			return result;

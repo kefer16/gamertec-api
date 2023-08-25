@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/conexion";
-import { ProductoSend } from "../interfaces/productos.interface";
+import {
+	IProductoSerie,
+	ProductoSend,
+} from "../interfaces/productos.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
+import { PrismaPromise } from "@prisma/client";
 
 export class ProductoController {
 	static async listarTodos(req: Request, res: Response) {
@@ -103,6 +107,19 @@ export class ProductoController {
 					producto_id: ID,
 				},
 			});
+
+			return result;
+		});
+	}
+
+	static async series(req: Request, res: Response) {
+		type tipo = IProductoSerie[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.detalle_id);
+			const opcion = String(req.query.opcion);
+
+			const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_listar_producto_series @detalle_id = ${ID}, @opcion = ${opcion}`;
 
 			return result;
 		});

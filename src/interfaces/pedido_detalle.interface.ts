@@ -23,7 +23,7 @@ export interface PedidoDetalleSinIdModel {
 	fk_pedido_cabecera: number;
 }
 
-export interface PedidoDetalleSend {
+export interface IPedidoDetalle {
 	item: number;
 	cantidad: number;
 	precio: number;

@@ -144,17 +144,19 @@ model Modelo {
   lst_comentario     Comentario[]
   lst_producto       Producto[]
   lst_pedido_detalle Pedido_detalle[]
+  lst_compra_detalle Compra_detalle[]
 }
 
 model Producto {
-  producto_id    Int      @id @default(autoincrement()) @db.Int
-  numero_serie   String   @unique @db.VarChar(11)
-  activo         Boolean  @db.Bit
-  fecha_registro DateTime @db.DateTime
-  fk_modelo      Int      @db.Int
-  fk_marca       Int      @db.Int
-  fk_categoria   Int      @db.Int
-  cls_modelo     Modelo   @relation(fields: [fk_modelo], references: [modelo_id])
+  producto_id                 Int                       @id @default(autoincrement()) @db.Int
+  numero_serie                String                    @unique @db.VarChar(11)
+  activo                      Boolean                   @db.Bit
+  fecha_registro              DateTime                  @db.DateTime
+  fk_modelo                   Int                       @db.Int
+  fk_marca                    Int                       @db.Int
+  fk_categoria                Int                       @db.Int
+  cls_modelo                  Modelo                    @relation(fields: [fk_modelo], references: [modelo_id])
+  lst_pedido_detalle_producto Pedido_detalle_producto[]
 }
 
 model Comentario {
@@ -192,6 +194,7 @@ model Distrito {
   distrito_id         Int               @id @db.Int
   nombre              String            @db.VarChar(45)
   activo              Boolean           @db.Bit
+  costo_envio         Float             @db.Money
   fk_provincia        Int               @db.Int
   fk_departamento     Int               @db.Int
   cls_provincia       Provincia         @relation(fields: [fk_provincia], references: [provincia_id])
@@ -241,13 +244,14 @@ model Pedido_detalle_producto {
   fk_producto                Int            @db.Int
   fk_pedido_detalle          Int            @db.Int
   cls_pedido_detalle         Pedido_detalle @relation(fields: [fk_pedido_detalle], references: [pedido_detalle_id])
+  lst_producto               Producto[]
 }
 
 model Compra_cabecera {
   compra_cabecera_id Int              @id @default(autoincrement()) @db.Int
   codigo             String           @db.VarChar(15)
   direccion          String           @db.VarChar(200)
-  telefono           Int              @db.Int
+  telefono           String           @db.VarChar(15)
   sub_total          Float            @db.Money
   costo_envio        Float            @db.Money
   total              Float            @db.Money
@@ -258,7 +262,6 @@ model Compra_cabecera {
   fk_usuario         Int              @db.Int
   cls_distito        Distrito         @relation(fields: [fk_distrito], references: [distrito_id])
   cls_usuario        Usuario          @relation(fields: [fk_usuario], references: [usuario_id])
-  // cls_pedido_cabecera Pedido_cabecera @relation(fields: [fk_pedido_cabecera], references: [pedido_cabecera_id])
   lst_compra_detalle Compra_detalle[]
 }
 
@@ -275,4 +278,5 @@ model Compra_detalle {
   fk_pedido_detalle   Int             @db.Int
   fk_compra_cabecera  Int             @db.Int
   cls_compra_cabecera Compra_cabecera @relation(fields: [fk_compra_cabecera], references: [compra_cabecera_id])
+  cls_modelo          Modelo          @relation(fields: [fk_modelo], references: [modelo_id])
 }
