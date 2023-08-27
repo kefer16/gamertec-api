@@ -210,6 +210,10 @@ export class PedidoController {
 				where: {
 					// fk_usuario: usuario_id,
 					activo: true,
+					comprado: false,
+				},
+				orderBy: {
+					fecha_registro: "desc",
 				},
 			});
 

@@ -214,6 +214,7 @@ model Pedido_cabecera {
   activo             Boolean          @db.Bit
   fk_distrito        Int              @db.Int
   fk_usuario         Int              @db.Int
+  comprado           Boolean          @db.Bit
   cls_distrito       Distrito         @relation(fields: [fk_distrito], references: [distrito_id])
   cls_usuario        Usuario          @relation(fields: [fk_usuario], references: [usuario_id])
   lst_pedido_detalle Pedido_detalle[]
