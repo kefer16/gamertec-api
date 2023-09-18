@@ -12,5 +12,6 @@ router.get(
 	"/obtener_carrito_por_usuario",
 	CarritoController.obtenerCarritoPorUsuario
 );
+router.get("/obtener_cantidad_carrito", CarritoController.obtenerCantidadCarrito);
 
 export { router as carritoRoutes };

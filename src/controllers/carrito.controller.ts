@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import {
+	CarritoCantidadUsuario,
 	CarritoSend,
 	CarritoUsuarioSend,
 } from "../interfaces/carrito.interface";
 import { prisma } from "../config/conexion";
 import { ejecutarOperacion } from "../utils/funciones.utils";
+import { PrismaPromise } from "@prisma/client";
 
 export class CarritoController {
 	static async listarTodos(req: Request, res: Response) {
@@ -156,4 +158,16 @@ export class CarritoController {
 			return result;
 		});
 	}
+	static async obtenerCantidadCarrito(req: Request, res: Response) {
+		type tipo = CarritoCantidadUsuario;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+
+			const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_obtener_cantidad_carrito @usuario_id = ${ID}`;
+
+			return result;
+		});
+	}
+
 }
