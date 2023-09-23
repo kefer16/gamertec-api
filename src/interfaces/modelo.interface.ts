@@ -43,4 +43,7 @@ export interface ModeloDescripcionSend {
 			nombre: string;
 		};
 	};
+	_count: {
+		lst_producto: number;
+	}
 }

@@ -10,7 +10,14 @@ import { prisma } from "../config/conexion";
 
 export class ErrorController {
 	static async grabarError(codigo: number, error: any, res: Response) {
-		const respuestaJson: RespuestaEntity<{}> = {} as RespuestaEntity<{}>;
+		const respuestaJson: RespuestaEntity<null> = {
+			code: codigo,
+			data: null,
+			error: {
+				code: error.parent === undefined ? 0 : error.parent.number,
+				message: error.message
+			}
+		};
 
 		try {
 			await prisma.error.create({

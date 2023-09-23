@@ -146,6 +146,11 @@ export class CarritoController {
 									nombre: true,
 								},
 							},
+							_count: {
+								select: {
+									lst_producto: { where: { activo: true, comprado: false } }
+								}
+							},
 						},
 					},
 				},
@@ -167,6 +172,35 @@ export class CarritoController {
 			const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_obtener_cantidad_carrito @usuario_id = ${ID}`;
 
 			return result;
+		});
+	}
+
+	static async eliminarModeloCarrito(req: Request, res: Response) {
+		type tipo = number[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const usuarioId = Number(req.query.usuario_id);
+			const carritoId = Number(req.query.carrito_id);
+
+			const result = prisma.$executeRaw`exec sp_eliminar_modelo_carrito @carrito_id = ${carritoId},@usuario_id = ${usuarioId} `;
+
+			const result1 = await prisma.$transaction([result]);
+			return result1;
+		});
+	}
+
+	static async actualizarCantidadCarrito(req: Request, res: Response) {
+		type tipo = number[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const usuarioId = Number(req.query.usuario_id);
+			const carritoId = Number(req.query.carrito_id);
+			const cantidad = Number(req.query.cantidad);
+			
+			const result = prisma.$executeRaw`exec sp_actualizar_cantidad_carrito @carrito_id = ${carritoId}, @cantidad = ${cantidad}, @usuario_id = ${usuarioId} `;
+
+			const result1 = await prisma.$transaction([result]);
+			return result1;
 		});
 	}
 

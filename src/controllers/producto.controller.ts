@@ -47,6 +47,7 @@ export class ProductoController {
 				fk_categoria,
 				fecha_registro,
 				activo,
+				comprado
 			} = req.body;
 
 			const result: tipo = await prisma.producto.create({
@@ -57,6 +58,7 @@ export class ProductoController {
 					fk_categoria,
 					fecha_registro,
 					activo,
+					comprado
 				},
 			});
 			return result;

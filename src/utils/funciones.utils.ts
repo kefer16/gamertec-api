@@ -44,7 +44,7 @@ export async function ejecutarOperacion<T>(
 		};
 		res.status(200).json(respuestaJson);
 	} catch (error: any) {
-		await ErrorController.grabarError(500, error, res);
+		await ErrorController.grabarError(400, error, res);
 	} finally {
 		await ApiEnvioController.grabarRespuestaAPI(code_send, res);
 	}

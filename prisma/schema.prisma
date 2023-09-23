@@ -152,6 +152,7 @@ model Producto {
   numero_serie                String                    @unique @db.VarChar(11)
   activo                      Boolean                   @db.Bit
   fecha_registro              DateTime                  @db.DateTime
+  comprado                    Boolean                   @db.Bit
   fk_modelo                   Int                       @db.Int
   fk_marca                    Int                       @db.Int
   fk_categoria                Int                       @db.Int

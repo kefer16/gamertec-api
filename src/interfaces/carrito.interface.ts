@@ -40,6 +40,9 @@ export interface CarritoUsuarioSend {
 			marca_id: number;
 			nombre: string;
 		};
+		_count:{
+			lst_producto: number;
+		}
 	};
 }
 export interface CarritoCantidadUsuario {

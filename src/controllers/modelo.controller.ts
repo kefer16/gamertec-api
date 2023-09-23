@@ -7,6 +7,7 @@ import {
 } from "../interfaces/modelo.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
 
+
 export class ModeloController {
 	static async listarTodos(req: Request, res: Response) {
 		type tipo = ModeloSend[];
@@ -195,6 +196,11 @@ export class ModeloController {
 					foto: true,
 					color: true,
 					stock: true,
+					_count: {
+						select: {
+							lst_producto: { where: { activo: true, comprado: false } }
+						}
+					},
 					cls_marca: {
 						select: {
 							marca_id: true,
@@ -212,6 +218,8 @@ export class ModeloController {
 					modelo_id: _modelo_id,
 				},
 			});
+
+			// const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_listar_modelo_descripcion @modelo_id = ${_modelo_id}`;
 
 			return result;
 		});
