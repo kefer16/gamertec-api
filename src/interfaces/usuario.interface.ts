@@ -46,3 +46,17 @@ export interface UsuarioHistorialSend {
 	direccion: string | null;
 	telefono: string | null;
 }
+
+export interface ActualizaNombreUsuario {
+	nombre: string;
+}
+
+export interface ActualizaApellidoUsuario {
+	apellido: string;
+}
+export interface ActualizaCorreoUsuario {
+	correo: string;
+}
+export interface ActualizaDireccionUsuario {
+	direccion: string;
+}

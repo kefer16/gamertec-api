@@ -8,7 +8,7 @@ export class RespuestaTokenEntity {
 	constructor(
 		code: number = 0,
 		data: string = "",
-		error: ErrorEntity = new ErrorEntity(0, "")
+		error: ErrorEntity = new ErrorEntity("0", "")
 	) {
 		this.code = code;
 		this.data = data;

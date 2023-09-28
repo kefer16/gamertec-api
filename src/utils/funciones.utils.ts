@@ -3,6 +3,7 @@ import { RespuestaEntity } from "../entities/respuesta.entity";
 import { ApiEnvioController } from "../controllers/apienvio.controller";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorController } from "../controllers/error.controlller";
+import { prisma } from "../config/conexion";
 
 export const obtenerFechaLocal = () => {
 	var local = new Date();
@@ -30,6 +31,7 @@ export async function ejecutarOperacion<T>(
 	let respuestaJson: RespuestaEntity<T> = new RespuestaEntity();
 
 	try {
+		prisma.$connect
 		await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
 		const result = await operacion();
@@ -38,7 +40,7 @@ export async function ejecutarOperacion<T>(
 			code: 200,
 			data: result,
 			error: {
-				code: 0,
+				code: "0",
 				message: "",
 			},
 		};
@@ -47,5 +49,6 @@ export async function ejecutarOperacion<T>(
 		await ErrorController.grabarError(400, error, res);
 	} finally {
 		await ApiEnvioController.grabarRespuestaAPI(code_send, res);
+		prisma.$disconnect
 	}
 }

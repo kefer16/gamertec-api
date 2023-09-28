@@ -30,7 +30,7 @@ model Api_envio {
 
 model Error {
   error_id       Int      @id @default(autoincrement()) @db.Int
-  codigo         Int      @db.Int
+  codigo         String   @db.VarChar(10)
   linea          Int      @db.Int
   objeto         String   @db.VarChar(max)
   mensaje        String   @db.VarChar(max)

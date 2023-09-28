@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import {
+	ActualizaApellidoUsuario,
+	ActualizaCorreoUsuario,
+	ActualizaDireccionUsuario,
+	ActualizaNombreUsuario,
 	UsuarioHistorialSend,
 	UsuarioLoginSend,
 	UsuarioSend,
@@ -181,6 +185,104 @@ export class UsuarioController {
 				},
 			});
 			return result;
+		});
+	}
+
+	static async actualizarNombre(req: Request, res: Response) {
+		type tipo = ActualizaNombreUsuario;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+			const { nombre } = req.body;
+
+			const result: tipo = await prisma.usuario.update({
+				select:{
+					nombre: true
+				},
+				data: {
+					nombre: nombre
+				},
+				where: {
+					usuario_id: ID,
+				},
+			});
+			return result;
+		});
+	}
+	static async actualizarApellido(req: Request, res: Response) {
+		type tipo = ActualizaApellidoUsuario;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+			const { apellido } = req.body;
+
+			const result: tipo = await prisma.usuario.update({
+				select:{
+					apellido: true
+				},
+				data: {
+					apellido: apellido
+				},
+				where: {
+					usuario_id: ID,
+				},
+			});
+			return result;
+		});
+	}
+	static async actualizarCorreo(req: Request, res: Response) {
+		type tipo = ActualizaCorreoUsuario;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+			const { correo } = req.body;
+
+			const result: tipo = await prisma.usuario.update({
+				select:{
+					correo: true
+				},
+				data: {
+					correo: correo
+				},
+				where: {
+					usuario_id: ID,
+				},
+			});
+			return result;
+		});
+	}
+	static async actualizarDireccion(req: Request, res: Response) {
+		type tipo = ActualizaDireccionUsuario;
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+			const { direccion } = req.body;
+
+			const result: tipo = await prisma.usuario.update({
+				select:{
+					direccion: true
+				},
+				data: {
+					direccion: direccion
+				},
+				where: {
+					usuario_id: ID,
+				},
+			});
+			return result;
+		});
+	}
+	static async actualizarContrasenia(req: Request, res: Response) {
+		type tipo = number[];
+
+		await ejecutarOperacion<tipo>(req, res, async () => {
+			const ID = Number(req.query.usuario_id);
+			const { contrasenia_actual, contrasenia_nueva } = req.body;
+
+			const result = prisma.$executeRaw`exec sp_actualizar_contrasenia @usuario_id = ${ID}, @contrasenia_actual = ${contrasenia_actual}, @contrasenia_nueva = ${contrasenia_nueva} `;
+			const result1 = await prisma.$transaction([result]);
+
+			return result1;
 		});
 	}
 }
