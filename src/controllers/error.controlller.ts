@@ -44,13 +44,13 @@ export class ErrorController {
 		errorProps.objeto = errorProps.objeto === undefined ? "" : errorProps.objeto;  
 		errorProps.mensaje = errorProps.mensaje === undefined ? "" : errorProps.mensaje;  
 		errorProps.servidor = errorProps.servidor === undefined ? "" : errorProps.servidor;  
-
+		
 		const respuestaJson: RespuestaEntity<null> = {
 			code: codigo,
 			data: null,
 			error: {
-				code: errorProps.codigo,
-				message: errorProps.mensaje
+				code: errorProps.codigo === "50000" ?  errorProps.codigo :  "0",
+				message: errorProps.codigo === "50000" ? errorProps.mensaje : "hubo un error"
 			}
 		};
 
