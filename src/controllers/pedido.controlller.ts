@@ -6,10 +6,63 @@ import {
 	PedidoCabeceraUsuarioSend,
 	IActualizaSerie,
 	IPedidoDetalleProductoId,
+	PedidoPreferencia,
+	RespuestaPedidoPreferencia,
 } from "../interfaces/pedido_cabecera.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
-
+import mercadopago from "mercadopago";
+import { CreatePreferencePayload, PreferenceItem } from "mercadopago/models/preferences/create-payload.model";
 export class PedidoController {
+
+	static async crearPreferencia(req: Request, res: Response) {
+
+		const itemsPreferencia : PreferenceItem[] = [];
+		const itemsBody: PedidoPreferencia[] = req.body;
+		console.log(itemsBody);
+		
+
+		itemsBody.forEach((element: PedidoPreferencia) => {
+			itemsPreferencia.push({title: element.cls_modelo.nombre, unit_price: element.precio,quantity:element.cantidad})
+		});
+
+		let preference: CreatePreferencePayload = {
+			items: itemsPreferencia,
+			back_urls: {
+			  success: "http://localhost:3001/buy/",
+			  failure: "http://localhost:3001/failted/",
+			  pending: "",
+			},
+			auto_return: "approved",
+		};
+		
+		mercadopago.preferences
+			.create(preference)
+			.then(function (response) {
+				const ID : RespuestaPedidoPreferencia = {id :response.body.id } 
+				const respuestaJson = {
+					code: 200,
+					data: ID,
+					error: {
+						code: "0",
+						message: "",
+					},
+				};
+				res.status(200).json(respuestaJson);
+			})
+			.catch(function (error) {
+				console.log(error);
+			});
+		
+		// await ejecutarOperacion<tipo>(req, res, async () => {
+		// 	const result: tipo = await prisma.pedido_cabecera.findMany({
+		// 		orderBy: {
+		// 			fecha_registro: "desc",
+		// 		},
+		// 	});
+
+		// 	return result;
+		// });
+	}
 	static async listarTodos(req: Request, res: Response) {
 		type tipo = IPedidoCabecera[];
 

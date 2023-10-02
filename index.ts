@@ -3,6 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import * as fs from "fs";
+import mercadopago from "mercadopago";
 import swaggerUi from "swagger-ui-express";
 import { usuarioRoutes } from "./src/routes/usuario.routes";
 import { autenticacionRoutes } from "./src/routes/autentication.routes";
@@ -34,6 +35,9 @@ swaggerDocument.servers = [{ url: baseUrl }];
 // Crear una instancia de express
 const app = express();
 app.use(cors());
+mercadopago.configure({
+	access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN || "",
+});
 app.use(bodyParser.json());
 
 // Configurar swagger-ui-express con la especificación y la URL base

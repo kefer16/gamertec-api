@@ -1,3 +1,11 @@
+export interface PedidoPreferencia{
+	cantidad: number;
+	precio: number;
+	cls_modelo: {
+		nombre: string;
+	};
+}
+
 export interface PedidoCabeceraModel {
 	pedido_cabecera_id?: number;
 	codigo: string;
@@ -106,4 +114,8 @@ export interface IActualizaSerie {
 
 export interface IPedidoDetalleProductoId {
 	pedido_detalle_producto_id: number;
+}
+
+export interface RespuestaPedidoPreferencia{
+	id: string
 }

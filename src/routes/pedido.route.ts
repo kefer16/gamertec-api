@@ -3,6 +3,7 @@ import { PedidoController } from "../controllers/pedido.controlller";
 
 const router = Router();
 
+router.post("/crear_preferencia", PedidoController.crearPreferencia);
 router.get("/todos", PedidoController.listarTodos);
 router.get("/uno", PedidoController.listarUno);
 router.post("/registrar", PedidoController.registrar);
