@@ -119,9 +119,9 @@ export class ProductoController {
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const ID = Number(req.query.detalle_id);
-			const opcion = String(req.query.opcion);
+			const usuario_id = String(req.query.usuario_id);
 
-			const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_listar_producto_series @detalle_id = ${ID}, @opcion = ${opcion}`;
+			const result: PrismaPromise<tipo> = prisma.$queryRaw`exec sp_listar_producto_series @detalle_id = ${ID}, @usuario_id = ${usuario_id}`;
 
 			return result;
 		});

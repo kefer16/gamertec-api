@@ -1,8 +1,8 @@
 export interface PedidoPreferencia{
 	cantidad: number;
-	precio: number;
 	cls_modelo: {
 		nombre: string;
+		precio: number;
 	};
 }
 

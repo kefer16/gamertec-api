@@ -107,13 +107,12 @@ export class CompraController {
 		type tipo = number[];
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			const pedido_cabecera_id = Number(req.query.pedido_cabecera_id);
-
-			console.log(req);
-
-			console.log(pedido_cabecera_id);
-
-			const result = prisma.$executeRaw`exec sp_registrar_compra @pedido_cabecera_id = ${pedido_cabecera_id}`;
+			const preferencia_id = String(req.body.preferencia_id);
+			const estado = String(req.body.estado);
+			const pago_id = String(req.body.pago_id);
+			const usuario_id = Number(req.body.usuario_id);
+			
+			const result = prisma.$executeRaw`exec sp_registrar_compra @preferencia_id = ${preferencia_id}, @estado = ${estado}, @pago_id = ${pago_id}, @usuario_id = ${usuario_id}`;
 
 			const result1 = await prisma.$transaction([result]);
 

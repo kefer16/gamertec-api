@@ -15,30 +15,52 @@ import { CreatePreferencePayload, PreferenceItem } from "mercadopago/models/pref
 export class PedidoController {
 
 	static async crearPreferencia(req: Request, res: Response) {
-
 		const itemsPreferencia : PreferenceItem[] = [];
-		const itemsBody: PedidoPreferencia[] = req.body;
-		console.log(itemsBody);
+		const ID = Number(req.query.usuario_id);
 		
+		const itemsCarrito = await prisma.carrito.findMany({
+			select:{
+				cantidad: true,
+				cls_modelo:{
+					select:{
+						precio: true,
+						nombre: true
+					}
+				}
+			},
+			where:{
+				pedido:false,
+				despues: false,
+				fk_usuario: ID
+			},
+			orderBy:{
+				fecha_registro: "desc"
+			}
+		})
 
-		itemsBody.forEach((element: PedidoPreferencia) => {
-			itemsPreferencia.push({title: element.cls_modelo.nombre, unit_price: element.precio,quantity:element.cantidad})
+		itemsCarrito.forEach((element: PedidoPreferencia) => {
+			itemsPreferencia.push({
+				title: element.cls_modelo.nombre, 
+				unit_price: element.cls_modelo.precio,
+				quantity:element.cantidad
+			})
 		});
 
 		let preference: CreatePreferencePayload = {
 			items: itemsPreferencia,
 			back_urls: {
-			  success: "http://localhost:3001/buy/",
-			  failure: "http://localhost:3001/failted/",
-			  pending: "",
+			  success: "http://localhost:3001/order_successful/",
+			  failure: "http://localhost:3001/order_failure/",
 			},
 			auto_return: "approved",
 		};
 		
 		mercadopago.preferences
 			.create(preference)
-			.then(function (response) {
-				const ID : RespuestaPedidoPreferencia = {id :response.body.id } 
+			.then(function (resp) {
+				
+				const ID: RespuestaPedidoPreferencia = {id : resp.body.id } 
+				
 				const respuestaJson = {
 					code: 200,
 					data: ID,
@@ -52,17 +74,8 @@ export class PedidoController {
 			.catch(function (error) {
 				console.log(error);
 			});
-		
-		// await ejecutarOperacion<tipo>(req, res, async () => {
-		// 	const result: tipo = await prisma.pedido_cabecera.findMany({
-		// 		orderBy: {
-		// 			fecha_registro: "desc",
-		// 		},
-		// 	});
-
-		// 	return result;
-		// });
 	}
+
 	static async listarTodos(req: Request, res: Response) {
 		type tipo = IPedidoCabecera[];
 
@@ -143,12 +156,11 @@ export class PedidoController {
 		await ejecutarOperacion<tipo>(req, res, async () => {
 			const usuario_id = Number(req.body.usuario_id);
 			const distrito_id = Number(req.body.distrito_id);
+			const preferencia_id = String(req.body.preferencia_id);
 			const fecha_registro = req.body.fecha_registro;
-
-			// const query: string = ``;
-			// console.log(query);
-
-			const result = prisma.$executeRaw`exec sp_registrar_pedido @usuario_id = ${usuario_id}, @distrito_id = ${distrito_id}, @fecha_registro = ${fecha_registro}`;
+			console.log(preferencia_id);
+			
+			const result = prisma.$executeRaw`exec sp_registrar_pedido @usuario_id = ${usuario_id}, @distrito_id = ${distrito_id}, @preferencia_id = ${preferencia_id}, @fecha_registro = ${fecha_registro}`;
 
 			await prisma.$transaction([result]);
 
