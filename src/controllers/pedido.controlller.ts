@@ -5,9 +5,9 @@ import {
 	IPedidoCabecera,
 	PedidoCabeceraUsuarioSend,
 	IActualizaSerie,
-	IPedidoDetalleProductoId,
 	PedidoPreferencia,
 	RespuestaPedidoPreferencia,
+	ICompraDetalleProductoId,
 } from "../interfaces/pedido_cabecera.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
 import mercadopago from "mercadopago";
@@ -289,32 +289,31 @@ export class PedidoController {
 		type tipo = number;
 
 		await ejecutarOperacion<tipo>(req, res, async () => {
-			const ID: number = Number(req.query.pedido_detalle_id);
+			const ID: number = Number(req.query.compra_detalle_id);
 
 			const series: IActualizaSerie[] = req.body;
 
-			const detalle: IPedidoDetalleProductoId[] =
-				await prisma.pedido_detalle_producto.findMany({
+			const detalle: ICompraDetalleProductoId[] =
+				await prisma.compra_detalle_producto.findMany({
 					select: {
-						pedido_detalle_producto_id: true,
+						compra_detalle_producto_id: true,
 					},
 					where: {
-						fk_pedido_detalle: ID,
+						fk_compra_detalle: ID,
 					},
 				});
 
 			const updatePromises: Promise<any>[] = [];
-			console.log("detalle", detalle);
 
 			let i = 0;
 			series.forEach((element: IActualizaSerie) => {
-				const updatePromise = prisma.pedido_detalle_producto.update({
+				const updatePromise = prisma.compra_detalle_producto.update({
 					data: {
 						numero_serie: element.numero_serie,
 						fk_producto: element.fk_producto,
 					},
 					where: {
-						pedido_detalle_producto_id: detalle[i].pedido_detalle_producto_id,
+						compra_detalle_producto_id: detalle[i].compra_detalle_producto_id,
 					},
 				});
 				i = i + 1;

@@ -112,8 +112,8 @@ export interface IActualizaSerie {
 	fk_producto: number;
 }
 
-export interface IPedidoDetalleProductoId {
-	pedido_detalle_producto_id: number;
+export interface ICompraDetalleProductoId {
+	compra_detalle_producto_id: number;
 }
 
 export interface RespuestaPedidoPreferencia{

@@ -19,6 +19,7 @@ import { ProvinciaRoutes } from "./src/routes/provincia.routes";
 import { DistritoRoutes } from "./src/routes/distrito.routes";
 import { PedidoRoutes } from "./src/routes/pedido.route";
 import { CompraRoutes } from "./src/routes/compra.route";
+import { CompraEstadoRouter } from "./src/routes/compra_estado.route";
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use("/provincia", ProvinciaRoutes);
 app.use("/distrito", DistritoRoutes);
 app.use("/pedido", PedidoRoutes);
 app.use("/compra", CompraRoutes);
+app.use("/compra_estado", CompraEstadoRouter);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication

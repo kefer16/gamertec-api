@@ -262,9 +262,12 @@ model Compra_cabecera {
   fk_distrito        Int              @db.Int
   fk_pedido_cabecera Int              @db.Int
   fk_usuario         Int              @db.Int
+  fk_compra_estado   Int              @db.Int
   cls_distito        Distrito         @relation(fields: [fk_distrito], references: [distrito_id])
   cls_usuario        Usuario          @relation(fields: [fk_usuario], references: [usuario_id])
+  cls_compra_estado  Compra_estado    @relation(fields: [fk_compra_estado], references: [compra_estado_id])
   lst_compra_detalle Compra_detalle[]
+  
 }
 
 model Compra_detalle {
@@ -281,4 +284,24 @@ model Compra_detalle {
   fk_compra_cabecera  Int             @db.Int
   cls_compra_cabecera Compra_cabecera @relation(fields: [fk_compra_cabecera], references: [compra_cabecera_id])
   cls_modelo          Modelo          @relation(fields: [fk_modelo], references: [modelo_id])
+  lst_compra_detalle_producto Compra_detalle_producto[]
+}
+
+model Compra_detalle_producto {
+  compra_detalle_producto_id Int            @id @default(autoincrement()) @db.Int
+  item                       Int            @db.Int
+  numero_serie               String         @db.VarChar(11)
+  fecha_registro             DateTime       @db.DateTime
+  fk_producto                Int            @db.Int
+  fk_compra_detalle          Int            @db.Int
+  cls_compra_detalle         Compra_detalle @relation(fields: [fk_compra_detalle], references: [compra_detalle_id])
+}
+
+model Compra_estado {
+  compra_estado_id Int       @id @default(autoincrement()) @db.Int
+  abreviatura      String    @db.VarChar(3)
+  nombre           String    @db.VarChar(11)
+  fecha_registro   DateTime  @db.DateTime
+  activo           Boolean   @db.Bit
+  lst_compra       Compra_cabecera[]
 }
