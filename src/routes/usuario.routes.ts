@@ -14,7 +14,7 @@ router.put("/actualizar_nombre", UsuarioController.actualizarNombre);
 router.put("/actualizar_apellido", UsuarioController.actualizarApellido);
 router.put("/actualizar_correo", UsuarioController.actualizarCorreo);
 router.put("/actualizar_direccion", UsuarioController.actualizarDireccion);
+router.put("/actualizar_foto", UsuarioController.actualizarFoto);
 router.put("/actualizar_contrasenia", UsuarioController.actualizarContrasenia);
-
 
 export { router as usuarioRoutes };

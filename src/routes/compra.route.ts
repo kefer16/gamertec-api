@@ -10,5 +10,9 @@ router.put("/actualizar", CompraController.actualizar);
 router.delete("/eliminar", CompraController.eliminarUno);
 router.get("/ultimo", CompraController.listarUltimo);
 router.get("/compras_usuario", CompraController.listarComprasUsuario);
+router.put(
+   "/actualizar_compra_estado",
+   CompraController.actualizarCompraEstado
+);
 
 export { router as CompraRoutes };

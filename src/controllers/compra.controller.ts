@@ -207,4 +207,19 @@ export class CompraController {
          return result;
       });
    }
+
+   static async actualizarCompraEstado(req: Request, res: Response) {
+      type tipo = number[];
+
+      await ejecutarOperacion<tipo>(req, res, async () => {
+         const compra_cabecera_id = Number(req.query.compra_cabecera_id);
+         const compra_abreviatura = String(req.query.compra_abreviatura);
+
+         const result = prisma.$executeRaw`exec sp_actualizar_compra_estado @compra_cabecera_id = ${compra_cabecera_id}, @compra_abreviatura = ${compra_abreviatura}`;
+
+         const result1 = await prisma.$transaction([result]);
+
+         return result1;
+      });
+   }
 }
