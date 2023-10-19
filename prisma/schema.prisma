@@ -109,7 +109,7 @@ model Carrito {
 model Categoria {
   categoria_id        Int      @id @default(autoincrement()) @db.Int
   nombre              String   @db.VarChar(45)
-  activo              Int      @db.Int
+  activo              Boolean  @db.Bit
   fecha_registro      DateTime @db.DateTime
   fecha_actualizacion DateTime @db.DateTime
   lst_marca           Marca[]
