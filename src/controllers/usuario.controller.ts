@@ -7,10 +7,12 @@ import {
    ActualizaNombreUsuario,
    UsuarioHistorialSend,
    UsuarioLoginSend,
+   UsuarioPasswordLogin,
    UsuarioSend,
 } from "../interfaces/usuario.interface";
 import { prisma } from "../config/conexion";
 import { ejecutarOperacion } from "../utils/funciones.utils";
+import { comparar, encriptar } from "../utils/bcrypt";
 
 export class UsuarioController {
    static async listarTodos(req: Request, res: Response) {
@@ -49,7 +51,7 @@ export class UsuarioController {
       type tipo = UsuarioSend;
 
       await ejecutarOperacion<tipo>(req, res, async () => {
-         const {
+         let {
             nombre,
             apellido,
             correo,
@@ -62,6 +64,8 @@ export class UsuarioController {
             direccion,
             telefono,
          } = req.body;
+
+         contrasenia = await encriptar(contrasenia);
 
          const result: tipo = await prisma.usuario.create({
             data: {
@@ -131,6 +135,26 @@ export class UsuarioController {
       await ejecutarOperacion<tipo>(req, res, async () => {
          const { usuario, contrasenia } = req.body;
 
+         const contrasenia_encriptada: UsuarioPasswordLogin | null =
+            await prisma.usuario.findUnique({
+               select: {
+                  contrasenia: true,
+               },
+               where: {
+                  usuario: usuario,
+               },
+            });
+
+         if (!contrasenia_encriptada?.contrasenia) {
+            throw new Error("Datos incorrectos");
+         }
+
+         if (
+            !(await comparar(contrasenia, contrasenia_encriptada.contrasenia))
+         ) {
+            throw new Error("Usuario o contraseña incorrecta");
+         }
+
          const result: tipo = await prisma.usuario.findUnique({
             select: {
                usuario_id: true,
@@ -147,7 +171,7 @@ export class UsuarioController {
             },
             where: {
                usuario: usuario,
-               contrasenia: contrasenia,
+               contrasenia: contrasenia_encriptada.contrasenia,
             },
          });
 

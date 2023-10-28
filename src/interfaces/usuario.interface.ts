@@ -29,6 +29,10 @@ export interface UsuarioLoginSend {
    direccion: string;
    telefono: string;
 }
+
+export interface UsuarioPasswordLogin {
+   contrasenia: string | null;
+}
 export interface UsuarioHistorialSend {
    usuario_id: number;
    nombre: string;
