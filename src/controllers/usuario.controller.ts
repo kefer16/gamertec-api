@@ -302,7 +302,11 @@ export class UsuarioController {
 
       await ejecutarOperacion<tipo>(req, res, async () => {
          const ID = Number(req.query.usuario_id);
-         const { contrasenia_actual, contrasenia_nueva } = req.body;
+         let { contrasenia_actual, contrasenia_nueva } = req.body;
+
+         contrasenia_actual = await encriptar(contrasenia_actual);
+         contrasenia_nueva = await encriptar(contrasenia_nueva);
+         console.log(contrasenia_actual, contrasenia_nueva);
 
          const result = prisma.$executeRaw`exec sp_actualizar_contrasenia @usuario_id = ${ID}, @contrasenia_actual = ${contrasenia_actual}, @contrasenia_nueva = ${contrasenia_nueva} `;
          const result1 = await prisma.$transaction([result]);

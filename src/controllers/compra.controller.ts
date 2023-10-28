@@ -8,42 +8,21 @@ import {
    ICompraTable,
 } from "../interfaces/compra.interface";
 import { ejecutarOperacion } from "../utils/funciones.utils";
+import { TableSQLJson } from "../interfaces/json.interface";
 
 export class CompraController {
    static async listarTodos(req: Request, res: Response) {
-      type tipo = ICompraCard[];
-
+      type tipo = ICompraCard[] | null;
       await ejecutarOperacion<tipo>(req, res, async () => {
-         const result: tipo = await prisma.compra_cabecera.findMany({
-            select: {
-               compra_cabecera_id: true,
-               codigo: true,
-               sub_total: true,
-               costo_envio: true,
-               total: true,
-               fecha_registro: true,
-               activo: true,
-               fk_compra_estado: true,
-               lst_compra_detalle: {
-                  select: {
-                     cantidad: true,
-                     precio: true,
-                     total: true,
-                     fecha_registro: true,
-                     activo: true,
-                     cls_modelo: {
-                        select: {
-                           foto: true,
-                           nombre: true,
-                        },
-                     },
-                  },
-               },
-            },
-            orderBy: {
-               fecha_registro: "desc",
-            },
-         });
+         const usuario_id: number = Number(req.query.usuario_id);
+
+         const result_query: TableSQLJson[] =
+            await prisma.$queryRaw`exec sp_listar_compra_por_usuario @usuario_id = ${usuario_id}`;
+
+         let result = null;
+         if (result_query) {
+            result = JSON.parse(result_query[0].json);
+         }
          return result;
       });
    }

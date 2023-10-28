@@ -37,6 +37,15 @@ export interface ICompraDetalleCard {
    total: number;
    fecha_registro: Date;
    activo: boolean;
+   cls_modelo: IModeloCard[];
+}
+
+export interface ICompraDetalleTable {
+   cantidad: number;
+   precio: number;
+   total: number;
+   fecha_registro: Date;
+   activo: boolean;
    cls_modelo: IModeloCard;
 }
 
@@ -59,7 +68,7 @@ export interface ICompraTable {
       abreviatura: string;
       nombre: string;
    };
-   lst_compra_detalle: ICompraDetalleCard[];
+   lst_compra_detalle: ICompraDetalleTable[];
 }
 
 export interface ICompraDetalleTable {
