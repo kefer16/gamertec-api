@@ -56,7 +56,7 @@ model Usuario {
   fk_privilegio       Int               @db.Int
   fecha_inicial       DateTime?         @db.DateTime2
   fecha_final         DateTime?         @db.DateTime2
-  privilegio          Privilegio        @relation(fields: [fk_privilegio], references: [privilegio_id])
+  cls_privilegio      Privilegio        @relation(fields: [fk_privilegio], references: [privilegio_id])
   lst_api_envio       Api_envio[]
   lst_error           Error[]
   lst_carrito         Carrito[]

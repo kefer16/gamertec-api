@@ -35,7 +35,7 @@ export class UsuarioController {
 
          const result: UsuarioSend | null = await prisma.usuario.findUnique({
             include: {
-               privilegio: {
+               cls_privilegio: {
                   select: {
                      privilegio_id: true,
                      tipo: true,
@@ -146,7 +146,7 @@ export class UsuarioController {
             });
 
          if (!contrasenia_encriptada?.contrasenia) {
-            throw new Error("Datos incorrectos");
+            throw new Error("Usuario o contraseña incorrecta");
          }
 
          if (
@@ -168,6 +168,13 @@ export class UsuarioController {
                fk_privilegio: true,
                direccion: true,
                telefono: true,
+               cls_privilegio: {
+                  select: {
+                     privilegio_id: true,
+                     abreviatura: true,
+                     tipo: true,
+                  },
+               },
             },
             where: {
                usuario: usuario,

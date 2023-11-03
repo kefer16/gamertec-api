@@ -28,6 +28,13 @@ export interface UsuarioLoginSend {
    fk_privilegio: number;
    direccion: string;
    telefono: string;
+   cls_privilegio: PrivilegioLogin;
+}
+
+export interface PrivilegioLogin {
+   privilegio_id: number;
+   abreviatura: string;
+   tipo: string;
 }
 
 export interface UsuarioPasswordLogin {
