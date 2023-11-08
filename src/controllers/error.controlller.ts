@@ -51,8 +51,6 @@ export class ErrorController {
       errorProps.servidor =
          errorProps.servidor === undefined ? "" : errorProps.servidor;
 
-      console.log("erro:", error.parent);
-
       const respuestaJson: RespuestaEntity<null> = {
          code: codigo,
          data: null,
