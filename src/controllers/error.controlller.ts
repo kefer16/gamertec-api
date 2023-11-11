@@ -9,10 +9,12 @@ import {
 import { prisma } from "../config/conexion";
 import { Prisma } from "@prisma/client";
 import { ErrorProps } from "../interfaces/error.interface";
+import { ErrorPersonalizado } from "../entities/errorPersonalizado.entity";
 
 export class ErrorController {
    static async grabarError(codigo: number, error: any, res: Response) {
       const errorProps: ErrorProps = {
+         esValidacion: false,
          codigo: "",
          linea: 0,
          objeto: "",
@@ -22,44 +24,59 @@ export class ErrorController {
          fk_usuario: 1,
       };
 
-      if (error) {
+      // if (error) {
+      //    errorProps.objeto = obtenerArchivoError(error);
+      //    errorProps.mensaje = error.message;
+      //    errorProps.servidor = "CODE";
+      // }
+
+      // if (error.parent) {
+      //    errorProps.linea = error.parent.lineNumber;
+      //    errorProps.servidor = error.parent.serverName;
+      // } else {
+      //    errorProps.codigo = "50000";
+      // }
+
+      if (error instanceof ErrorPersonalizado) {
+         console.log("Error Personalizado");
+
+         errorProps.esValidacion = true;
+         errorProps.codigo = "0";
+         errorProps.linea = 0;
+         errorProps.objeto = obtenerArchivoError(error);
+         errorProps.mensaje = error.message;
+         errorProps.servidor = "CODE";
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+         console.log("Error SqlError");
+         if (String(error.meta?.code) === "5000") {
+            errorProps.esValidacion = true;
+         } else {
+            errorProps.esValidacion = false;
+         }
+         errorProps.codigo = String(error.meta?.code);
+         errorProps.linea = 0;
+         errorProps.objeto = obtenerArchivoError(error);
+         errorProps.mensaje = String(error.meta?.message);
+         errorProps.servidor = "DATABASE";
+      } else {
+         console.log("Error Error");
+         errorProps.esValidacion = false;
+         errorProps.codigo = String(error.code);
+         errorProps.linea = 0;
          errorProps.objeto = obtenerArchivoError(error);
          errorProps.mensaje = error.message;
          errorProps.servidor = "CODE";
       }
 
-      if (error.parent) {
-         errorProps.linea = error.parent.lineNumber;
-         errorProps.servidor = error.parent.serverName;
-      } else {
-         errorProps.codigo = "50000";
-      }
-
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-         errorProps.codigo = String(error.meta?.code);
-         errorProps.mensaje = String(error.meta?.message);
-         errorProps.servidor = "DATABASE";
-      }
-
-      errorProps.codigo =
-         errorProps.codigo === undefined ? "" : errorProps.codigo;
-      errorProps.linea = errorProps.linea === undefined ? 0 : errorProps.linea;
-      errorProps.objeto =
-         errorProps.objeto === undefined ? "" : errorProps.objeto;
-      errorProps.mensaje =
-         errorProps.mensaje === undefined ? "" : errorProps.mensaje;
-      errorProps.servidor =
-         errorProps.servidor === undefined ? "" : errorProps.servidor;
-
       const respuestaJson: RespuestaEntity<null> = {
          code: codigo,
          data: null,
          error: {
-            code: errorProps.codigo === "50000" ? errorProps.codigo : "0",
-            message:
-               errorProps.codigo === "50000"
-                  ? errorProps.mensaje
-                  : "hubo un error",
+            isValidate: errorProps.esValidacion,
+            code: errorProps.esValidacion ? errorProps.codigo : "0",
+            message: errorProps.esValidacion
+               ? errorProps.mensaje
+               : "Hubo un error",
          },
       };
 
@@ -105,6 +122,7 @@ export class ErrorController {
          code: codigo,
          data: "",
          error: {
+            isValidate: false,
             code: "0",
             message: _error.message,
          },

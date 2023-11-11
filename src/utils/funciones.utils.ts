@@ -6,49 +6,50 @@ import { ErrorController } from "../controllers/error.controlller";
 import { prisma } from "../config/conexion";
 
 export const obtenerFechaLocal = () => {
-	var local = new Date();
-	local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
-	return local.toJSON();
+   var local = new Date();
+   local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+   return local.toJSON();
 };
 
 export const obtenerArchivoError = (error: any) => {
-	const stackTrace = error.stack;
-	const fileNameMatches = stackTrace.match(/at\s+.+\((.+):\d+:\d+\)/);
+   const stackTrace = error.stack;
+   const fileNameMatches = stackTrace.match(/at\s+.+\((.+):\d+:\d+\)/);
 
-	if (fileNameMatches && fileNameMatches.length > 1) {
-		const fileName = fileNameMatches[1];
-		return fileName;
-	} else {
-		return "";
-	}
+   if (fileNameMatches && fileNameMatches.length > 1) {
+      const fileName = fileNameMatches[1];
+      return fileName;
+   } else {
+      return "";
+   }
 };
 export async function ejecutarOperacion<T>(
-	req: Request,
-	res: Response,
-	operacion: () => Promise<T>
+   req: Request,
+   res: Response,
+   operacion: () => Promise<T>
 ) {
-	const code_send = uuidv4();
-	let respuestaJson: RespuestaEntity<T> = new RespuestaEntity();
+   const code_send = uuidv4();
+   let respuestaJson: RespuestaEntity<T> = new RespuestaEntity();
 
-	try {
-		prisma.$connect
-		await ApiEnvioController.grabarEnvioAPI(code_send, req);
+   try {
+      prisma.$connect;
+      await ApiEnvioController.grabarEnvioAPI(code_send, req);
 
-		const result = await operacion();
+      const result = await operacion();
 
-		respuestaJson = {
-			code: 200,
-			data: result,
-			error: {
-				code: "0",
-				message: "",
-			},
-		};
-		res.status(200).json(respuestaJson);
-	} catch (error: any) {
-		await ErrorController.grabarError(400, error, res);
-	} finally {
-		await ApiEnvioController.grabarRespuestaAPI(code_send, res);
-		prisma.$disconnect
-	}
+      respuestaJson = {
+         code: 200,
+         data: result,
+         error: {
+            isValidate: false,
+            code: "0",
+            message: "",
+         },
+      };
+      res.status(200).json(respuestaJson);
+   } catch (error: any) {
+      await ErrorController.grabarError(400, error, res);
+   } finally {
+      await ApiEnvioController.grabarRespuestaAPI(code_send, res);
+      prisma.$disconnect;
+   }
 }

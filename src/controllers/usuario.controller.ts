@@ -13,6 +13,7 @@ import {
 import { prisma } from "../config/conexion";
 import { ejecutarOperacion } from "../utils/funciones.utils";
 import { comparar, encriptar } from "../utils/bcrypt";
+import { ErrorPersonalizado } from "../entities/errorPersonalizado.entity";
 
 export class UsuarioController {
    static async listarTodos(req: Request, res: Response) {
@@ -142,13 +143,13 @@ export class UsuarioController {
             });
 
          if (!contrasenia_encriptada?.contrasenia) {
-            throw new Error("Usuario o contraseña incorrecta");
+            throw new ErrorPersonalizado("Usuario o contraseña incorrecta");
          }
 
          if (
             !(await comparar(contrasenia, contrasenia_encriptada.contrasenia))
          ) {
-            throw new Error("Usuario o contraseña incorrecta");
+            throw new ErrorPersonalizado("Usuario o contraseña incorrecta");
          }
 
          const result: tipo = await prisma.usuario.findUnique({
