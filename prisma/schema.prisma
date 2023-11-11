@@ -47,7 +47,6 @@ model Usuario {
   correo              String            @unique @db.VarChar(150)
   usuario             String            @unique @db.VarChar(150)
   contrasenia         String?           @db.VarChar(150)
-  dinero              Float             @db.Money
   foto                String            @db.VarChar(max)
   direccion           String            @unique @db.VarChar(500)
   telefono            String            @db.VarChar(30)
@@ -74,7 +73,6 @@ model Usuario_historial {
   contrasenia    String?  @db.VarChar(150)
   direccion      String?  @db.VarChar(500)
   telefono       String?  @db.VarChar(30)
-  dinero         Float    @db.Money
   foto           String   @db.VarChar(max)
   fecha_registro DateTime @db.DateTime
   activo         Boolean  @db.Bit
@@ -134,8 +132,6 @@ model Modelo {
   color              String           @db.VarChar(45)
   precio             Float            @db.Money
   fecha_registro     DateTime         @db.DateTime
-  stock              Int              @db.Int
-  numero_series      String           @db.VarChar(max)
   activo             Boolean          @db.Bit
   fk_marca           Int              @db.Int
   fk_categoria       Int              @db.Int

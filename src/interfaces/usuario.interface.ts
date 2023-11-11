@@ -5,7 +5,6 @@ export interface UsuarioSend {
    correo: string;
    usuario: string;
    contrasenia: string | null;
-   dinero: number;
    foto: string;
    fecha_registro: Date;
    activo: boolean;
@@ -22,7 +21,6 @@ export interface UsuarioLoginSend {
    apellido: string;
    correo: string;
    usuario: string;
-   dinero: number;
    foto: string;
    activo: boolean;
    fk_privilegio: number;
@@ -47,7 +45,6 @@ export interface UsuarioHistorialSend {
    correo: string;
    usuario: string;
    contrasenia: string | null;
-   dinero: number;
    foto: string;
    fecha_registro: Date;
    activo: boolean;
