@@ -1,7 +1,5 @@
 import { Response } from "express";
 import { RespuestaEntity } from "../entities/respuesta.entity";
-import { RespuestaTokenEntity } from "../entities/respuestacredenciales.entity";
-// import { ErrorModel } from "../models/error.models";
 import {
    obtenerArchivoError,
    obtenerFechaLocal,
@@ -12,7 +10,12 @@ import { ErrorProps } from "../interfaces/error.interface";
 import { ErrorPersonalizado } from "../entities/errorPersonalizado.entity";
 
 export class ErrorController {
-   static async grabarError(codigo: number, error: any, res: Response) {
+   static async grabarError(
+      codigo: number,
+      codigo_envio: string,
+      error: any,
+      res: Response
+   ) {
       const errorProps: ErrorProps = {
          esValidacion: false,
          codigo: "",
@@ -24,42 +27,29 @@ export class ErrorController {
          fk_usuario: 1,
       };
 
-      // if (error) {
-      //    errorProps.objeto = obtenerArchivoError(error);
-      //    errorProps.mensaje = error.message;
-      //    errorProps.servidor = "CODE";
-      // }
-
-      // if (error.parent) {
-      //    errorProps.linea = error.parent.lineNumber;
-      //    errorProps.servidor = error.parent.serverName;
-      // } else {
-      //    errorProps.codigo = "50000";
-      // }
-
       if (error instanceof ErrorPersonalizado) {
-         console.log("Error Personalizado");
-
          errorProps.esValidacion = true;
          errorProps.codigo = "0";
          errorProps.linea = 0;
          errorProps.objeto = obtenerArchivoError(error);
          errorProps.mensaje = error.message;
-         errorProps.servidor = "CODE";
       } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-         console.log("Error SqlError");
          if (String(error.meta?.code) === "5000") {
             errorProps.esValidacion = true;
+            errorProps.codigo = String(error.meta?.code);
+            errorProps.linea = 0;
+            errorProps.objeto = obtenerArchivoError(error);
+            errorProps.mensaje = String(error.meta?.message);
+            errorProps.servidor = "DATABASE";
          } else {
             errorProps.esValidacion = false;
+            errorProps.codigo = String(error.code);
+            errorProps.linea = 0;
+            errorProps.objeto = obtenerArchivoError(error);
+            errorProps.mensaje = String(error.message);
+            errorProps.servidor = "DATABASE";
          }
-         errorProps.codigo = String(error.meta?.code);
-         errorProps.linea = 0;
-         errorProps.objeto = obtenerArchivoError(error);
-         errorProps.mensaje = String(error.meta?.message);
-         errorProps.servidor = "DATABASE";
       } else {
-         console.log("Error Error");
          errorProps.esValidacion = false;
          errorProps.codigo = String(error.code);
          errorProps.linea = 0;
@@ -76,7 +66,7 @@ export class ErrorController {
             code: errorProps.esValidacion ? errorProps.codigo : "0",
             message: errorProps.esValidacion
                ? errorProps.mensaje
-               : "Hubo un error",
+               : `Hubo un error, brínda el siguiente código al administrador del sistema: [${codigo_envio}] `,
          },
       };
 
@@ -84,6 +74,7 @@ export class ErrorController {
          await prisma.error.create({
             data: {
                codigo: errorProps.codigo,
+               codigo_envio: codigo_envio,
                linea: errorProps.linea,
                objeto: errorProps.objeto,
                mensaje: errorProps.mensaje,
@@ -104,6 +95,7 @@ export class ErrorController {
          await prisma.error.create({
             data: {
                codigo: error.parent === undefined ? 0 : error.parent.number,
+               codigo_envio: "",
                linea: error.parent.lineNumber,
                objeto: obtenerArchivoError(error),
                mensaje: error.message,
@@ -117,33 +109,34 @@ export class ErrorController {
       }
    }
 
-   static async grabarErrorToken(codigo: number, _error: any, res: Response) {
-      const respuestaJson: RespuestaTokenEntity = {
-         code: codigo,
-         data: "",
-         error: {
-            isValidate: false,
-            code: "0",
-            message: _error.message,
-         },
-      };
+   // static async grabarErrorToken(codigo: number, _error: any, res: Response) {
+   //    const respuestaJson: RespuestaTokenEntity = {
+   //       code: codigo,
+   //       data: "",
+   //       error: {
+   //          isValidate: false,
+   //          code: "0",
+   //          message: _error.message,
+   //       },
+   //    };
 
-      try {
-         await prisma.error.create({
-            data: {
-               codigo: "0",
-               linea: _error.parent.lineNumber,
-               objeto: _error.parent.procName,
-               mensaje: _error.message,
-               servidor: _error.parent.serverName,
-               fecha_registro: obtenerFechaLocal(),
-               fk_usuario: 1,
-            },
-         });
+   //    try {
+   //       await prisma.error.create({
+   //          data: {
+   //             codigo: "0",
+   //             codigo_envio: "",
+   //             linea: _error.parent.lineNumber,
+   //             objeto: _error.parent.procName,
+   //             mensaje: _error.message,
+   //             servidor: _error.parent.serverName,
+   //             fecha_registro: obtenerFechaLocal(),
+   //             fk_usuario: 1,
+   //          },
+   //       });
 
-         res.status(codigo).json(respuestaJson);
-      } catch (error) {
-         console.log(error);
-      }
-   }
+   //       res.status(codigo).json(respuestaJson);
+   //    } catch (error) {
+   //       console.log(error);
+   //    }
+   // }
 }

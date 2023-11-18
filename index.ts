@@ -20,6 +20,7 @@ import { DistritoRoutes } from "./src/routes/distrito.routes";
 import { PedidoRoutes } from "./src/routes/pedido.route";
 import { CompraRoutes } from "./src/routes/compra.route";
 import { CompraEstadoRouter } from "./src/routes/compra_estado.route";
+import { contactoRoutes } from "./src/routes/contacto.route";
 
 dotenv.config();
 
@@ -37,17 +38,17 @@ swaggerDocument.servers = [{ url: baseUrl }];
 const app = express();
 app.use(cors());
 mercadopago.configure({
-	access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN || "",
+   access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN || "",
 });
 app.use(bodyParser.json());
 
 // Configurar swagger-ui-express con la especificación y la URL base
 app.use("/api-docs", swaggerUi.serve);
 app.get(
-	"/api-docs",
-	swaggerUi.setup(swaggerDocument, {
-		swaggerOptions: { url: `${baseUrl}/swagger.json` },
-	})
+   "/api-docs",
+   swaggerUi.setup(swaggerDocument, {
+      swaggerOptions: { url: `${baseUrl}/swagger.json` },
+   })
 );
 
 // // Configuración de Swagger
@@ -68,6 +69,7 @@ app.use("/distrito", DistritoRoutes);
 app.use("/pedido", PedidoRoutes);
 app.use("/compra", CompraRoutes);
 app.use("/compra_estado", CompraEstadoRouter);
+app.use("/contacto", contactoRoutes);
 app.use("/token", autenticacionRoutes);
 
 // Authentication middleware for routes that need authentication
@@ -79,5 +81,5 @@ app.use("/token", autenticacionRoutes);
 // });
 
 app.listen(port, () =>
-	console.log(`Server running on port ${port} + ${process.env.API_HOST}`)
+   console.log(`Server running on port ${port} + ${process.env.API_HOST}`)
 );

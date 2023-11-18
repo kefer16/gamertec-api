@@ -47,7 +47,7 @@ export async function ejecutarOperacion<T>(
       };
       res.status(200).json(respuestaJson);
    } catch (error: any) {
-      await ErrorController.grabarError(400, error, res);
+      await ErrorController.grabarError(400, code_send, error, res);
    } finally {
       await ApiEnvioController.grabarRespuestaAPI(code_send, res);
       prisma.$disconnect;
