@@ -1,24 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { Usuario } from "../models/usuario.models";
 
 export async function autenticacion(
-	req: Request,
-	res: Response,
-	next: NextFunction
+   req: Request,
+   res: Response,
+   next: NextFunction
 ) {
-	const token = req.headers.authorization;
+   const token = req.headers.authorization;
 
-	if (!token) {
-		return res.status(401).json({ message: "Authentication required" });
-	}
+   if (!token) {
+      return res.status(401).json({ message: "Authentication required" });
+   }
 
-	const user = await Usuario.findOne({ where: { token } });
+   // const user = await Usuario.findOne({ where: { token } });
 
-	if (!user) {
-		return res.status(401).json({ message: "Invalid token" });
-	}
+   // if (!user) {
+   // 	return res.status(401).json({ message: "Invalid token" });
+   // }
 
-	//   req.user = user;
+   //   req.user = user;
 
-	return next();
+   return next();
 }
