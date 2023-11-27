@@ -108,35 +108,4 @@ export class ErrorController {
          console.log(error);
       }
    }
-
-   // static async grabarErrorToken(codigo: number, _error: any, res: Response) {
-   //    const respuestaJson: RespuestaTokenEntity = {
-   //       code: codigo,
-   //       data: "",
-   //       error: {
-   //          isValidate: false,
-   //          code: "0",
-   //          message: _error.message,
-   //       },
-   //    };
-
-   //    try {
-   //       await prisma.error.create({
-   //          data: {
-   //             codigo: "0",
-   //             codigo_envio: "",
-   //             linea: _error.parent.lineNumber,
-   //             objeto: _error.parent.procName,
-   //             mensaje: _error.message,
-   //             servidor: _error.parent.serverName,
-   //             fecha_registro: obtenerFechaLocal(),
-   //             fk_usuario: 1,
-   //          },
-   //       });
-
-   //       res.status(codigo).json(respuestaJson);
-   //    } catch (error) {
-   //       console.log(error);
-   //    }
-   // }
 }
